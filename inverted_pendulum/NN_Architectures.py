@@ -1,21 +1,19 @@
 import torch.nn as nn
 import torch
-import numpy as np
-
 
 class SimpleLinearNN(nn.Module):
-    def __init__(self, input_dim, output_dim, hdim=20, activation_fn=nn.ReLU(), num_layers=3):
+    def __init__(self, input_dim, output_dim, num_hidden_layers=3, hdim=20, activation_fn=nn.ReLU(), ):
         super(SimpleLinearNN, self).__init__()
 
         # Create the actual architecture
         model = []
-        curr_dim = input_dim
-        for _ in range(num_layers-1):
+        model.append(nn.Sequential(nn.Linear(input_dim, hdim), activation_fn))
+        for _ in range(num_hidden_layers):
             model.append(nn.Sequential(
-                                nn.Linear(curr_dim, hdim),
+                                nn.Linear(hdim, hdim),
                                 activation_fn))
-            curr_dim = hdim
         model.append(nn.Sequential(nn.Linear(hdim, output_dim)))
+
         self.model = nn.Sequential(*model)
         self.float()
 
@@ -24,7 +22,7 @@ class SimpleLinearNN(nn.Module):
 
 
 if __name__ == '__main__':
-    model = SimpleLinearNN(3, 2)
+    model = SimpleLinearNN(3, 2, num_hidden_layers=0)
     print(model)
 
     rand_tensor = torch.rand((512, 3))
