@@ -9,7 +9,6 @@ class InvertedPendulumDataset(Dataset):
     def __init__(self, path, generate_new=False, size=1024):
         """
         Args:
-
         """
 
         self.path = path + 'ip_data.json'
