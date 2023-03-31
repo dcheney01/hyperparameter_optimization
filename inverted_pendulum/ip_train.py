@@ -31,54 +31,43 @@ class _TuneReportCallback(TuneReportCallback, pl.Callback):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def on_trial_result(self, iteration, trials, trial, result, **info):
+        # print(f"Got result: {result['metric']}")
+        pass
+
 def train_ip(config, notune=False):
 
     if notune:
         ip_lightning = InvertedPendulumLightning(config)
-        trainer = Trainer(accelerator=config['accelerator'], 
-                            devices=config['devices'],
-                            deterministic=True,
+        trainer = Trainer(deterministic=True,
                             max_epochs=config['max_epochs'], 
                             enable_progress_bar=True
                             )
         trainer.fit(ip_lightning)
         trainer.validate(ip_lightning, verbose=True)
     else:
-        # wandb_object = setup_wandb(config) # we don't do this with no tune because that is for testing (we don't want to log on wandb when testing)
         wandb.finish()
+        run = wandb.init(reinit=True)
 
-        wandb_logger = WandbLogger(project=config['project_name'], log_model='all')
-        # checkpoint_callback = ModelCheckpoint(monitor="val_accuracy", mode="max")
+        wandb_logger = WandbLogger(project=config['project_name'], log_model='all', 
+                                   save_dir=f'{os.getcwd()}/{config["run_name"]}/{run.name}/')
 
         ip_lightning = InvertedPendulumLightning(config)
 
-        trainer = Trainer(accelerator=config['accelerator'],
-                          devices=config['devices'],
-                          deterministic=True,
-                          log_every_n_steps=25,
+        trainer = Trainer(deterministic=True,
                           max_epochs=config['max_epochs'], 
                           enable_progress_bar=False,
                           logger=wandb_logger,
-                        #   logger=TensorBoardLogger(save_dir=os.getcwd(), name="", version="."),
-
-                          callbacks=[
-                                # _WandbLoggerCallback(project=config['project_name']),
-                        #         #     # metrics={
-                        #         #     #         "loss": "val/loss",
-                        #         #     #         "val/x_accuracy": "val/x_accuracy",
-                        #         #     #         "mean_xdot_acc": "val/xdot_accuracy" } 
-                        #                     # )
-                                _TuneReportCallback()
-                                ]
+                          callbacks=[_TuneReportCallback(on="validation_end")]
                         )
         trainer.fit(ip_lightning)
-
+        run.finish()
 
 
 def main(config):
     scheduler = ASHAScheduler(
                             max_t=config['max_epochs'],
-                            grace_period=2,
+                            grace_period=1,
                             reduction_factor=4)
     reporter = CLIReporter(
                         parameter_columns=["n_hlay", "hdim", "b_size", 'lr', 'act_fn', 'loss_fn', 'opt'],
@@ -86,9 +75,9 @@ def main(config):
 
     train_fn_with_parameters = tune.with_parameters(train_ip)
     
-    resources_per_trial = {"cpu": 8, "gpu": 1}
+    resources_per_trial = {"cpu": 5, "gpu": .51}
 
-    optuna_search = OptunaSearch(metric="val/x_accuracy", mode="max")
+    optuna_search = OptunaSearch()
     tuner = tune.Tuner(
         tune.with_resources(
             train_fn_with_parameters,
@@ -102,10 +91,10 @@ def main(config):
             num_samples=config['num_samples'],
         ),
         run_config=air.RunConfig(
-            name=config["run_name"],
+            # name=config["run_name"],
             progress_reporter=reporter,
             callbacks=[
-                _WandbLoggerCallback(project=config['project_name'])
+                _WandbLoggerCallback(project=config['project_name'], log_config=True)
             ],
             local_dir=config['path']+'run_logs/'
         ),
@@ -123,19 +112,19 @@ if __name__ == '__main__':
         'project_name': 'hyperparam_opt_ip',
 
         # Parameters to Optimize
-        # 'batch_size': 32,
-        # 'n_hlayers': 3,
+        # 'b_size': 32,
+        # 'n_hlay': 3,
         # 'hdim': 20,
         # 'lr': 0.001,
-        # 'activation_fn': nn.ReLU(),
-        # 'loss_fn': nn.MSELoss,
-        # 'optimizer': torch.optim.Adam,
+        # 'act_fn': 'relu',
+        # 'loss_fn': 'mse',
+        # 'opt': 'adam',
 
         'b_size': tune.choice([16, 32, 64, 128, 256, 512]),
         'n_hlay': tune.choice(list(i for i in range(11))),
         'hdim': tune.choice(2**i for i in range(3, 11)),
         'lr': tune.loguniform(1e-5, 1e-1),
-        'act_fn': tune.choice(['relu', 'tanh', 'sigmoid']),#, 'softmax']),
+        'act_fn': tune.choice(['relu', 'tanh']),#, 'sigmoid']),#, 'softmax']),
         'loss_fn': tune.choice(['mse', 'mae']),#, 'cross_entropy']),
         'opt': tune.choice(['adam', 'sgd']),# 'ada', 'lbfgs', 'rmsprop']),
 
@@ -145,17 +134,13 @@ if __name__ == '__main__':
         # Other Configuration Parameters
         'num_inputs': 3, 
         'num_outputs': 2,
-        'accuracy_tolerance': 0.1,
-        'training_size': 10000,
-        'validation_size': 1000,
-        'generate_new_data': False,
+        'accuracy_tolerance': 0.1, # This translates to about 5 degrees
+        # 'accuracy_tolerance': 0.01, # This translates to about 1/2 a degree
         'num_workers': 6,
 
         # Optimization Tool Parameters
-        'max_epochs': 1000,
-        'num_samples': 50,
-        'devices': 1,
-        'accelerator': 'gpu',
+        'max_epochs': 250,
+        'num_samples': 100,
         'path': '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/',
         }
 # 

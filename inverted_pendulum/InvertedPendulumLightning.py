@@ -31,7 +31,7 @@ class InvertedPendulumLightning(pl.LightningModule):
         elif config['act_fn'] == 'softmax': 
             act_fn = nn.Softmax()
         else:
-            raise ValueError("Incorrect Activation Function in tune search space")
+            raise ValueError(f"Incorrect Activation Function in tune search space. Got {config['act_fn']}")
         
         # Get loss function
         if config['loss_fn'] == 'mse':
@@ -41,7 +41,7 @@ class InvertedPendulumLightning(pl.LightningModule):
         elif config['loss_fn'] == 'cross_entropy':
             self.loss = nn.CrossEntropyLoss()
         else:
-            raise ValueError("Incorrect Loss Function in tune search space")
+            raise ValueError(f"Incorrect Loss Function in tune search space. Got {config['loss_fn']}")
 
         self.model = network_architecture(
             config['num_inputs'],
@@ -137,17 +137,17 @@ class InvertedPendulumLightning(pl.LightningModule):
         elif self.config['v'] == 'rmsprop':
             optimizer = torch.optim.RMSprop
         else:
-            raise ValueError("Incorrect Optimizer in tune search space")
+            raise ValueError(f"Incorrect Optimizer in tune search space. Got {self.config['opt']}")
 
         return optimizer(self.model.parameters(), self.config['lr'])
     
     def train_dataloader(self):
-        train_dataset = InvertedPendulumDataset(self.config['path']+'/data/train_', generate_new=self.config['generate_new_data'], size=self.config['training_size'])
-        train_loader = DataLoader(train_dataset, batch_size=self.config['b_size'], num_workers=self.config['num_workers'])
+        train_dataset = InvertedPendulumDataset(self.config['path']+'/data/train_')
+        train_loader = DataLoader(train_dataset, batch_size=self.config['b_size'])
         return train_loader
 
     def val_dataloader(self):
-        val_dataset = InvertedPendulumDataset(self.config['path']+'/data/validation_', generate_new=self.config['generate_new_data'], size=self.config['validation_size'])
-        val_loader = DataLoader(val_dataset, batch_size=self.config['b_size'], num_workers=self.config['num_workers'])
+        val_dataset = InvertedPendulumDataset(self.config['path']+'/data/validation_')
+        val_loader = DataLoader(val_dataset, batch_size=self.config['b_size'])
         return val_loader
 
