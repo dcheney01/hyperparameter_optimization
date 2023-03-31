@@ -1,4 +1,10 @@
-/__pycache__/
+inverted_pendulum/__pycache__/*
 
 *.pyc
 *.pyo
+
+
+*.json
+
+inverted_pendulum/data/*
+inverted_pendulum/run_logs/*

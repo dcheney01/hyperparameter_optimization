@@ -25,7 +25,7 @@ class InvertedPendulumDataset(Dataset):
             self.data_points = self.generate_data(size)          
     
 
-    def generate_data(self, size, learn_mode='xdot', normalized=False):
+    def generate_data(self, size, learn_mode='x', normalized=False):
         # generate data
         ip = InvertedPendulum()
         data = []
@@ -64,6 +64,12 @@ class InvertedPendulumDataset(Dataset):
 
 if __name__=='__main__':
     path  ='/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/'
-    ip_dataset = InvertedPendulumDataset(path, generate_new=True, size=4)
-    for i in ip_dataset:
-        print(i)
+    
+    val_path = path + 'data/validation_'
+    train_path = path + 'data/train_'
+    data_size = 10000
+
+    val_data = InvertedPendulumDataset(val_path, generate_new=True, size=int(data_size*0.9))
+    train_data = InvertedPendulumDataset(train_path, generate_new=True, size=data_size)
+    # for i in ip_dataset:
+    #     print(i)
