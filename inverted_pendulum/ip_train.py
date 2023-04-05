@@ -132,15 +132,14 @@ if __name__ == '__main__':
         'nn_arch': 'simple_fnn',
 
         # Other Configuration Parameters
-        'num_inputs': 3, 
-        'num_outputs': 2,
-        'accuracy_tolerance': 0.1, # This translates to about 5 degrees
-        # 'accuracy_tolerance': 0.01, # This translates to about 1/2 a degree
+        # 'accuracy_tolerance': 0.1, # This translates to about 5 degrees
+        'accuracy_tolerance': 0.01, # This translates to about 1/2 a degree
+        'calculates_xdot':False,
         'num_workers': 6,
 
         # Optimization Tool Parameters
-        'max_epochs': 250,
-        'num_samples': 100,
+        'max_epochs': 500,
+        'num_samples': 250,
         'path': '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/',
         }
 # 

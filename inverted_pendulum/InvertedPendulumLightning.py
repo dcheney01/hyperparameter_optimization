@@ -2,6 +2,8 @@ import torch
 from torch import nn
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
+import sys
+sys.path.append('/home/daniel/research/catkin_ws/src/')
 from hyperparam_optimization.NN_Architectures import SimpleLinearNN
 
 from ip_dataset import InvertedPendulumDataset
@@ -44,8 +46,8 @@ class InvertedPendulumLightning(pl.LightningModule):
             raise ValueError(f"Incorrect Loss Function in tune search space. Got {config['loss_fn']}")
 
         self.model = network_architecture(
-            config['num_inputs'],
-            config['num_outputs'],
+            3, # inputs
+            2, # outputs
             config['n_hlay'],
             config['hdim'],
             act_fn

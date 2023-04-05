@@ -67,7 +67,7 @@ if __name__=='__main__':
     
     val_path = path + 'data/validation_'
     train_path = path + 'data/train_'
-    data_size = 10000
+    data_size = 60000 # equivalent to 10 minutes of real time at dt=0.01 
 
     val_data = InvertedPendulumDataset(val_path, generate_new=True, size=int(data_size*0.9))
     train_data = InvertedPendulumDataset(train_path, generate_new=True, size=data_size)
