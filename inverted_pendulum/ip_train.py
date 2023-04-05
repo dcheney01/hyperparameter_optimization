@@ -1,26 +1,20 @@
 from pytorch_lightning import Trainer, seed_everything
-from torch import nn
 import pytorch_lightning as pl
-from pytorch_lightning.loggers import TensorBoardLogger
+from lightning.pytorch.loggers import WandbLogger
+
 from ray import air, tune
 from ray.tune import CLIReporter
-from ray.tune.schedulers import ASHAScheduler, PopulationBasedTraining
+from ray.tune.schedulers import ASHAScheduler
 from ray.tune.integration.pytorch_lightning import TuneReportCallback
-import torch
-import os, sys
-import json
 from ray.tune.search.optuna import OptunaSearch
-
-# from ray.air import session
-from ray.air.integrations.wandb import setup_wandb
-# from pytorch_lightning.loggers import wandb as WandbLogger
-import wandb
-os.environ['WANDB_SILENT']="true"
-from lightning.pytorch.loggers import WandbLogger
 from ray.air.integrations.wandb import WandbLoggerCallback
 
-sys.path.append('/home/daniel/research/catkin_ws/src/')
+import wandb
+os.environ['WANDB_SILENT']="true"
 
+import os, sys, json
+
+sys.path.append('/home/daniel/research/catkin_ws/src/')
 from InvertedPendulumLightning import InvertedPendulumLightning
 
 class _WandbLoggerCallback(WandbLoggerCallback, pl.Callback):
@@ -31,12 +25,7 @@ class _TuneReportCallback(TuneReportCallback, pl.Callback):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def on_trial_result(self, iteration, trials, trial, result, **info):
-        # print(f"Got result: {result['metric']}")
-        pass
-
 def train_ip(config, notune=False):
-
     if notune:
         ip_lightning = InvertedPendulumLightning(config)
         trainer = Trainer(deterministic=True,
@@ -50,7 +39,7 @@ def train_ip(config, notune=False):
         run = wandb.init(reinit=True)
 
         wandb_logger = WandbLogger(project=config['project_name'], log_model='all', 
-                                   save_dir=f'{os.getcwd()}/{config["run_name"]}/{run.name}/')
+                                   save_dir=f'{os.getcwd()}/')
 
         ip_lightning = InvertedPendulumLightning(config)
 
@@ -75,7 +64,7 @@ def main(config):
 
     train_fn_with_parameters = tune.with_parameters(train_ip)
     
-    resources_per_trial = {"cpu": 5, "gpu": .51}
+    resources_per_trial = {"cpu": 5, "gpu": .65}
 
     optuna_search = OptunaSearch()
     tuner = tune.Tuner(

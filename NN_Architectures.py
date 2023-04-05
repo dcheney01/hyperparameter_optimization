@@ -15,7 +15,6 @@ def SimpleLinearNN(input_dim, output_dim, num_hidden_layers=3, hdim=20, activati
                             activation_fn)
                     )
     model.append(nn.Sequential(nn.Linear(hdim, output_dim)))
-
     model = nn.Sequential(*model)
 
     return model

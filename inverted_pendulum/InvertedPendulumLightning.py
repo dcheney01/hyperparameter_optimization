@@ -3,9 +3,9 @@ from torch import nn
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
 import sys
+
 sys.path.append('/home/daniel/research/catkin_ws/src/')
 from hyperparam_optimization.NN_Architectures import SimpleLinearNN
-
 from ip_dataset import InvertedPendulumDataset
 
 class InvertedPendulumLightning(pl.LightningModule):
@@ -22,6 +22,8 @@ class InvertedPendulumLightning(pl.LightningModule):
 
         if config['nn_arch'] == 'simple_fnn':
             network_architecture = SimpleLinearNN
+        else:
+            raise ValueError(f"Unknown Network Architecture. Got {config['nn_arch']}")
 
         # Get activation function
         if config['act_fn'] == 'relu':
@@ -95,9 +97,6 @@ class InvertedPendulumLightning(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         """
         Currently calculates validation stats based on the loss
-            - Future work will calculate a validation score based on control performance
-                        - Have a dataset of 20 trajectories
-                        - Have a known working controller that can take the model through the trajectories and get a score for the model as the output    
         """
         state_input, next_state = batch
         state_input = torch.stack(state_input).float().movedim(0, -1).cuda()
@@ -136,7 +135,7 @@ class InvertedPendulumLightning(pl.LightningModule):
             optimizer = torch.optim.Adagrad
         elif self.config['opt'] == 'lbfgs':
             optimizer = torch.optim.LBFGS
-        elif self.config['v'] == 'rmsprop':
+        elif self.config['opt'] == 'rmsprop':
             optimizer = torch.optim.RMSprop
         else:
             raise ValueError(f"Incorrect Optimizer in tune search space. Got {self.config['opt']}")

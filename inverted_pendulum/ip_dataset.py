@@ -5,12 +5,19 @@ import numpy as np
 
 from rad_models.InvertedPendulum import InvertedPendulum
 
-class InvertedPendulumDataset(Dataset):
-    def __init__(self, path, generate_new=False, size=1024):
-        """
-        Args:
-        """
+"""
+This file generates data to train a learned dynamics model of the Inverted Pendulum
 
+    Currently calculates a random state and input pair and then calculates the next state based on 
+    the [state, input] (Markov Assumption)
+
+    Can give data as output is x (full state) or xdot (change in state between time steps)
+
+    Finds data in discrete time steps of 0.01, can change below
+"""
+
+class InvertedPendulumDataset(Dataset):
+    def __init__(self, path, learn_mode='x', generate_new=False, size=1024):
         self.path = path + 'ip_data.json'
 
         if not generate_new:
@@ -22,11 +29,10 @@ class InvertedPendulumDataset(Dataset):
                 generate_new = True
         
         if generate_new:
-            self.data_points = self.generate_data(size)          
+            self.data_points = self.generate_data(size, learn_mode=learn_mode)          
     
 
     def generate_data(self, size, learn_mode='x', normalized=False):
-        # generate data
         ip = InvertedPendulum()
         data = []
         
@@ -63,13 +69,11 @@ class InvertedPendulumDataset(Dataset):
     
 
 if __name__=='__main__':
-    path  ='/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/'
+    path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/'
     
     val_path = path + 'data/validation_'
     train_path = path + 'data/train_'
-    data_size = 60000 # equivalent to 10 minutes of real time at dt=0.01 
+    data_size = 60000 # 60000 is equivalent to 10 minutes of real time at dt=0.01 
 
-    val_data = InvertedPendulumDataset(val_path, generate_new=True, size=int(data_size*0.9))
-    train_data = InvertedPendulumDataset(train_path, generate_new=True, size=data_size)
-    # for i in ip_dataset:
-    #     print(i)
+    val_data = InvertedPendulumDataset(val_path, learn_mode='x', generate_new=True, size=int(data_size*0.2))
+    train_data = InvertedPendulumDataset(train_path, learn_mode='x', generate_new=True, size=data_size)
