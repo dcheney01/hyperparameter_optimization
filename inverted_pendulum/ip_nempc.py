@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm 
 import json
 import time
+from PIL import Image
 
 from nonlinear_empc.NonlinearEMPC import NonlinearEMPC
 from rad_models.InvertedPendulum import InvertedPendulum
@@ -66,7 +67,7 @@ if __name__=="__main__":
     config['calculates_xdot'] = False
     json.dumps(config)
 
-    learned_sys = IP_LearnedModel(model_path=checkpoint_path, config=config)
+    learned_sys = IP_LearnedModel(model_path=None, config=config)
     learned_forward = learned_sys.forward_simulate_dt
 
     analytical_sys = InvertedPendulum()
@@ -87,7 +88,7 @@ if __name__=="__main__":
     useGPU = False
     angle_wrapping = True
 
-    controller = NonlinearEMPC(analytical_forward, 
+    controller = NonlinearEMPC(learned_forward, 
                                         CostFunc, 
                                         learned_sys.numStates, 
                                         learned_sys.numInputs, 
@@ -107,7 +108,7 @@ if __name__=="__main__":
                                         crossover_method=crossover_method,
                                         seed=True)
 
-    realTimeHorizon = 600
+    realTimeHorizon = 525
 
     # Initial Conditions
     elapsedTime = 0
@@ -121,9 +122,12 @@ if __name__=="__main__":
     u = u0 # initial inputs
     x_hist = np.zeros([learned_sys.numStates, realTimeHorizon])
     u_hist = np.zeros([learned_sys.numInputs, realTimeHorizon])
+    gifFrames = []
     t = np.linspace(0,realTimeHorizon,num=int(realTimeHorizon*50+1))
     best_cost_hist = np.zeros(t.shape)
     goal_count = 0
+    makeGif = True
+    plt.gcf().canvas.draw()
 
     # Forward Simulate with Controller
     for i in tqdm(range(0, realTimeHorizon)):            
@@ -138,6 +142,18 @@ if __name__=="__main__":
         x = analytical_forward(x, u, dt) # take the input and apply it to the analytical system
         analytical_sys.visualize(x) # visualize it on the physical system     
 
+        if makeGif:
+            imgData = np.frombuffer(plt.gcf().canvas.tostring_rgb(), dtype=np.uint8)
+            w, h = plt.gcf().canvas.get_width_height()
+            mod = np.sqrt(imgData.shape[0]/(3*w*h)) # multi-sampling of pixels on high-res displays does weird things.
+            im = imgData.reshape((int(h*mod), int(w*mod), -1))
+            gifFrames.append(Image.fromarray(im))
+
+    if makeGif:
+        gifFrames[0].save('/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/animations/untrainedModel_NEMPC.gif', format='GIF',
+                        append_images=gifFrames[1:],
+                        save_all=True,
+                        duration=realTimeHorizon*dt*.75, loop=1)
     # Plotting                    
     plt.figure("Position")
     plt.subplot(3, 1, 1)
