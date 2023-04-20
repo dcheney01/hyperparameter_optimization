@@ -5,21 +5,18 @@ from torch.utils.data import DataLoader
 import sys
 
 sys.path.append('/home/daniel/research/catkin_ws/src/')
-from hyperparam_optimization.NN_Architectures import SimpleLinearNN
-from ip_dataset import InvertedPendulumDataset
+from hyperparam_optimization.NN_Architectures import *
+from hyperparam_optimization.BASE.DatasetBaseClass import DatasetBaseClass
 
-class InvertedPendulumLightning(pl.LightningModule):
-    """ Lightning Module Object that is compatible with PyTorch Lightning Trainer
-            - config is a dictionary of options that are used to instantiate this class
-            - training and validation data sets are created in this class
-    """
+""" 
+Lightning Module Object that is compatible with PyTorch Lightning Trainer
+"""
 
-    def __init__(self, config):
-        """
-        - instantiates the model, loss function, and saves the config dict to this object
-        """
+class LightningModuleBaseClass(pl.LightningModule):
+    def __init__(self, config:dict, dataset:DatasetBaseClass):
         super().__init__()
 
+        # Set network architecture
         if config['nn_arch'] == 'simple_fnn':
             network_architecture = SimpleLinearNN
         else:
@@ -48,13 +45,14 @@ class InvertedPendulumLightning(pl.LightningModule):
             raise ValueError(f"Incorrect Loss Function in tune search space. Got {config['loss_fn']}")
 
         self.model = network_architecture(
-            3, # inputs
-            2, # outputs
+            config['n_inputs'],
+            config['n_outputs'],
             config['n_hlay'],
             config['hdim'],
             act_fn
         )
 
+        self.dataset = dataset
         self.config = config
 
         self.validation_step_outputs_loss = []
@@ -69,8 +67,6 @@ class InvertedPendulumLightning(pl.LightningModule):
     def accuracy(self, prediction, truth):
         """
         Calculates the accuracy of the models prediction
-            - currently checks if the absolute difference in prediction and ground truth
-                is less than a certain tolerance and takes the average of the whole tensor (for x and xdot)
         """
         within_tol = torch.abs(prediction - truth) < self.config['accuracy_tolerance']
         accuracy = torch.mean(within_tol.float(), 0)
@@ -143,12 +139,12 @@ class InvertedPendulumLightning(pl.LightningModule):
         return optimizer(self.model.parameters(), self.config['lr'])
     
     def train_dataloader(self):
-        train_dataset = InvertedPendulumDataset(self.config['path']+'/data/train_')
-        train_loader = DataLoader(train_dataset, batch_size=self.config['b_size'])
+        train_dataset = self.dataset(self.config, validation=False)
+        train_loader = DataLoader(train_dataset, batch_size=self.config['b_size'], num_workers=self.config['num_workers'])
         return train_loader
 
     def val_dataloader(self):
-        val_dataset = InvertedPendulumDataset(self.config['path']+'/data/validation_')
-        val_loader = DataLoader(val_dataset, batch_size=self.config['b_size'])
+        val_dataset = self.dataset(self.config, validation=True)
+        val_loader = DataLoader(val_dataset, batch_size=self.config['b_size'], num_workers=self.config['num_workers'])
         return val_loader
 

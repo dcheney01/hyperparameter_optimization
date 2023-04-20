@@ -14,7 +14,7 @@ import json,sys
 
 sys.path.append('/home/daniel/research/catkin_ws/src/')
 from rad_models.InvertedPendulum import InvertedPendulum
-from InvertedPendulumLightning import InvertedPendulumLightning
+from hyperparam_optimization.inverted_pendulum.InvertedPendulumLightningModule import InvertedPendulumLightningModule
 from hyperparam_optimization.NN_Architectures import *
 
 class IP_LearnedModel(InvertedPendulum):

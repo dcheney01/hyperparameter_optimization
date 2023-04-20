@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm 
 import json
-import time
 from PIL import Image
 
 from nonlinear_empc.NonlinearEMPC import NonlinearEMPC
@@ -126,7 +125,7 @@ if __name__=="__main__":
     t = np.linspace(0,realTimeHorizon,num=int(realTimeHorizon*50+1))
     best_cost_hist = np.zeros(t.shape)
     goal_count = 0
-    makeGif = True
+    makeGif = False
     plt.gcf().canvas.draw()
 
     # Forward Simulate with Controller
