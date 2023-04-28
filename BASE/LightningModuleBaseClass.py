@@ -5,16 +5,20 @@ from torch.utils.data import DataLoader
 import sys
 
 sys.path.append('/home/daniel/research/catkin_ws/src/')
-from hyperparam_optimization.NN_Architectures import *
-from hyperparam_optimization.BASE.DatasetBaseClass import DatasetBaseClass
+from hyperparam_optimization.BASE.NN_Architectures import *
 
 """ 
 Lightning Module Object that is compatible with PyTorch Lightning Trainer
 """
 
 class LightningModuleBaseClass(pl.LightningModule):
-    def __init__(self, config:dict, dataset:DatasetBaseClass):
+    def __init__(self, config:dict):
         super().__init__()
+
+        self.config = config
+        self.system = None
+        self.dataset = None
+        # self.save_hyperparameters()
 
         # Set network architecture
         if config['nn_arch'] == 'simple_fnn':
@@ -52,14 +56,10 @@ class LightningModuleBaseClass(pl.LightningModule):
             act_fn
         )
 
-        self.dataset = dataset
-        self.config = config
-
         self.validation_step_outputs_loss = []
         self.validation_step_outputs_x_acc = []
         self.validation_step_outputs_x_dot_acc = []
 
-        self.save_hyperparameters()
 
     def forward(self, x):
         return self.model(x)
@@ -139,12 +139,12 @@ class LightningModuleBaseClass(pl.LightningModule):
         return optimizer(self.model.parameters(), self.config['lr'])
     
     def train_dataloader(self):
-        train_dataset = self.dataset(self.config, validation=False)
+        train_dataset = self.dataset(self.config, self.system, validation=False)
         train_loader = DataLoader(train_dataset, batch_size=self.config['b_size'], num_workers=self.config['num_workers'])
         return train_loader
 
     def val_dataloader(self):
-        val_dataset = self.dataset(self.config, validation=True)
+        val_dataset = self.dataset(self.config, self.system, validation=True)
         val_loader = DataLoader(val_dataset, batch_size=self.config['b_size'], num_workers=self.config['num_workers'])
         return val_loader
 

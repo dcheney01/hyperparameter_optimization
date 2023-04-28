@@ -1,5 +1,8 @@
 import torch.nn as nn
 import torch
+import sys
+sys.path.append('/home/daniel/research/catkin_ws/src/')
+
 
 def SimpleLinearNN(input_dim, output_dim, num_hidden_layers=3, hdim=20, activation_fn=nn.ReLU()):
     """

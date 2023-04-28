@@ -2,6 +2,10 @@ import numpy as np
 from copy import deepcopy
 from scipy.linalg import expm
 
+import sys
+sys.path.append('/home/daniel/research/catkin_ws/src/')
+
+
 class Model():
     def __init__(self):
         self.numStates = None

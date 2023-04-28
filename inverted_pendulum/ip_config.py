@@ -1,9 +1,8 @@
-from InvertedPendulum import InvertedPendulum
 from ray import tune
 
 ip_config = {
-        'run_name': 'data-points-run',
         'project_name': 'hyperparam_opt_ip',
+        'run_name': 'data-points-runtest',
 
         'n_inputs': 3, # [theta, theta_dot, tau] at t
         'n_outputs': 2, #[theta, theta_dot] at t+1
@@ -22,25 +21,24 @@ ip_config = {
         'accuracy_tolerance': 0.01, # This translates to about 1/2 a degree for inverted pendulum
         'calculates_xdot':False,
         'num_workers': 6,
-        'system': InvertedPendulum(),
         'generate_new_data': True,
         'learn_mode': 'x',
         'dataset_size': 10000,
         'normalized_data': False,
         'dt': 0.01,
-        'cpu_num': 4,
-        'gpu_num': 0.45,
+        'cpu_num': 7,
+        'gpu_num': 0.8,
         
         # Optimization Tool Parameters
-        'max_epochs': 250,
-        'num_samples': 100,
+        'max_epochs': 2,
+        'num_samples': 2,
         'path': '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/',
         }
 
 
 test_ip_config = {
-        'run_name': 'test',
         'project_name': 'test',
+        'run_name': 'test',
 
         'n_inputs': 3, # [theta, theta_dot, tau] at t
         'n_outputs': 2, #[theta, theta_dot] at t+1
@@ -59,8 +57,7 @@ test_ip_config = {
         'accuracy_tolerance': 0.01, # This translates to about 1/2 a degree
         'calculates_xdot':False,
         'num_workers': 6,
-        'system': InvertedPendulum(),
-        'generate_new_data': True,
+        'generate_new_data': False,
         'learn_mode': 'x',
         'dataset_size': 1000,
         'normalized_data': False,
@@ -71,5 +68,5 @@ test_ip_config = {
         # Optimization Tool Parameters
         'max_epochs': 2,
         'num_samples': 1,
-        'path': '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/test/',
+        'path': '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/data/test/',
         }

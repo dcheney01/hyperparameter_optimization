@@ -1,6 +1,6 @@
 from torch.utils.data import Dataset 
 import torch
-import json
+import json, sys
 import numpy as np
 
 """
@@ -24,16 +24,19 @@ This file generates data to train a learned dynamics model of a given system.
 """
 
 class DatasetBaseClass(Dataset):
-    def __init__(self, config: dict, validation=False):
-        self.path = config['path'] + ('data/train_' if not validation else 'data/validation_') + 'ip_data.json'
+    def __init__(self, config: dict, system, validation=False):
+        self.path = config['path'] + ('data/validation_' if validation else 'data/train_') + 'ip_data.json'
         generate_new_data = config['generate_new_data']
 
         self.learn_mode = config['learn_mode']
-        self.size = int(config['dataset_size'] * (0.8 if not validation else 0.2)) # This ratio of validation to training data can be adjusted
+        self.size = int(config['dataset_size'] * (0.2 if validation else 0.8)) # This ratio of validation to training data can be adjusted
         self.normalized = config['normalized_data']
-        self.system = config['system']
         self.dt = config['dt']
 
+        self.system = system()
+
+        assert type(self.system) is not None, "System type is none. Lightning Module Base class is not properly overrided"
+        
         if not generate_new_data:
             try:
                 with open(self.path) as f:
@@ -68,7 +71,7 @@ class DatasetBaseClass(Dataset):
                          [next_state[0][0], next_state[1][0]]))
 
         # save data
-        with open(self.path, 'w') as f:
+        with open(self.path, 'w+') as f:
             json.dump(data, f)
 
         return data
