@@ -40,7 +40,10 @@ class DatasetBaseClass(Dataset):
         if not generate_new_data:
             try:
                 with open(self.path) as f:
-                    self.data_points = [x for x in json.load(f)]   
+                    self.data_points = [x for x in json.load(f)]
+                    if len(self.data_points) != self.size:
+                        # Generate new data if the found data is not the same size as requested dataset size
+                        generate_new_data = True
             except:
                 print("No data found, will generate new data")
                 generate_new_data = True

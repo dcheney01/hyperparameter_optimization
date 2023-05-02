@@ -18,7 +18,6 @@ class LightningModuleBaseClass(pl.LightningModule):
         self.config = config
         self.system = None
         self.dataset = None
-        # self.save_hyperparameters()
 
         # Set network architecture
         if config['nn_arch'] == 'simple_fnn':

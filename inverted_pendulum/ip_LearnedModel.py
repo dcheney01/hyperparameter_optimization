@@ -8,13 +8,12 @@ Inputs u: [torque_origin]
 
 import numpy as np
 import torch
-from copy import deepcopy
 import matplotlib.pyplot as plt
-import json,sys
+import json, sys
 
 sys.path.append('/home/daniel/research/catkin_ws/src/')
-from rad_models.InvertedPendulum import InvertedPendulum
-from hyperparam_optimization.inverted_pendulum.InvertedPendulumLightningModule import InvertedPendulumLightningModule
+from ip_optimize import InvertedPendulumLightningModule
+from InvertedPendulum import InvertedPendulum
 from hyperparam_optimization.BASE.NN_Architectures import *
 
 class IP_LearnedModel(InvertedPendulum):
@@ -35,7 +34,7 @@ class IP_LearnedModel(InvertedPendulum):
         self.xMax = np.array([[10.0*np.pi],[2.0*np.pi]])
         self.xMin = np.array([[-10.0*np.pi],[-2.0*np.pi]])
 
-        if normalized == True:
+        if config['normalized_data']:
             self.xScale = self.xMax
             self.uScale = self.uMax
         else:
@@ -43,9 +42,9 @@ class IP_LearnedModel(InvertedPendulum):
             self.uScale = np.ones(self.uMax.shape)
 
         if model_path is None:
-            self.model =  InvertedPendulumLightning(self.config)
+            self.model = InvertedPendulumLightningModule(self.config)
         else:
-            self.model = InvertedPendulumLightning.load_from_checkpoint(model_path)
+            self.model = InvertedPendulumLightningModule.load_from_checkpoint(model_path)
 
         if self.use_gpu==True:
             self.model = self.model.cuda()
@@ -136,10 +135,8 @@ if __name__=='__main__':
     with open(params_path, 'r') as f:
         config = json.load(f)
 
-    # trained a few without this in the config so need to include it here
-    config['calculates_xdot'] = False
-    json.dumps(config)
-
+    print(json.dumps(config))
+    
     learned_system = IP_LearnedModel(model_path=checkpoint_path, config=config)  
     x_learned = np.zeros([2,1])
     x_learned[1] = .001

@@ -27,10 +27,9 @@ class InvertedPendulum(Model):
         self.numStates = 2
         self.numInputs = 1
 
-        # self.uMax = np.inf
         self.uMax = uMax  # .reshape([self.numInputs,1])
         self.uMin = -uMax  # .reshape([self.numInputs,1])
-        # .reshape([self.numStates,1])
+
         self.xMax = np.array([10.0*np.pi, 2.0*np.pi]
                              ).reshape([self.numStates, 1])
         self.xMin = -self.xMax.reshape([self.numStates, 1])
@@ -73,23 +72,6 @@ class InvertedPendulum(Model):
                        [0.0]])
         return A, B, w
 
-    def get_stability(self,k,x,u):
-        """
-        gets stability of the system
-        Args: 
-            k = (input,state,batch)
-            x = (state,batch)
-            u = (input,batch)
-        Returns:
-            sol = (batch) count of negative real eigenvalues 
-        """
-        # from IPython import embed; embed()
-        [A,B,w] = self.calc_continuous_A_B_w(x[:,0],u[:,0],.01)
-        val = np.linalg.eigvals(np.expand_dims(A,0)-np.matmul(np.expand_dims(B,0),np.moveaxis(k,(-1),(0)))) #eigvalsh
-        sol = np.sum(np.where(np.real(val)>0,1,0),axis=(1))
-        # from IPython import embed; embed()
-        return sol 
-
     def calc_discrete_A_B_w(self, x, u, dt=.01):
         x = deepcopy(x)
         u = deepcopy(u)
@@ -123,17 +105,6 @@ class InvertedPendulum(Model):
         massX = CoM[0] - self.l/2.0*np.sin(theta)
         massY = CoM[1] + self.l/2.0*np.cos(theta)
 
-        width = .1
-        height = .1
-        myangle = -90
-        # if(u<0):
-        #     mytheta1 = 360 + np.rad2deg(u[0]*np.pi)
-        #     mytheta2 = 0
-        # else:
-        #     mytheta1 = 0
-        #     mytheta2 = np.rad2deg(u[0]*np.pi)
-        # tau0 = patches.Arc([0,0],width,height,myangle,theta1=mytheta1,theta2=mytheta2,lw=2.5,color='r')
-        
         plt.clf()
         ax = plt.gca()
         ax.set_aspect('equal')
@@ -170,6 +141,7 @@ class InvertedPendulum(Model):
 
         x_hat = np.array([ydot, y]).reshape([self.numStates, 1]) # estiamted state vector
         return x_hat
+
 
 if __name__ == '__main__':
 
