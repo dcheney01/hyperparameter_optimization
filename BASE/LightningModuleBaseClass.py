@@ -22,6 +22,10 @@ class LightningModuleBaseClass(pl.LightningModule):
         # Set network architecture
         if config['nn_arch'] == 'simple_fnn':
             network_architecture = SimpleLinearNN
+        if config['nn_arch'] == 'lstm':
+            network_architecture = LSTM_CUSTOM
+        if config['transformer'] == 'transformer':
+            network_architecture = TransformerModule
         else:
             raise ValueError(f"Unknown Network Architecture. Got {config['nn_arch']}")
 

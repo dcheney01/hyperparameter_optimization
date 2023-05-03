@@ -6,7 +6,7 @@ from hyperparam_optimization.BASE.optimize_learned_model import optimize_system,
 from hyperparam_optimization.BASE.DatasetBaseClass import DatasetBaseClass
 from hyperparam_optimization.BASE.LightningModuleBaseClass import LightningModuleBaseClass
 
-from ip_config import ip_config, ip_tune_config, test_ip_config
+from ip_config import ip_config, test_ip_config
 from InvertedPendulum import InvertedPendulum
 
 class InvertedPendulumDataset(DatasetBaseClass):
@@ -49,4 +49,4 @@ if __name__ == '__main__':
     #     print(f"\nCould not complete training loop due to {e}")
 
     # Run the actual optimization
-    optimize_system(ip_tune_config, ip_config, InvertedPendulumLightningModule)
+    optimize_system(ip_config, InvertedPendulumLightningModule)

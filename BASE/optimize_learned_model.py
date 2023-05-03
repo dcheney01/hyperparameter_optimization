@@ -29,13 +29,11 @@ class _TuneReportCallback(TuneReportCallback, pl.Callback):
         super().__init__(*args, **kwargs)
 
 
-def train(tune_config:dict, 
-          config:dict, 
+def train(config:dict, 
           lighting_module_given:LightningModuleBaseClass,
           notune=False):
-    full_config = {**tune_config, **config}
     if notune:
-        lightning_module = lighting_module_given(full_config)
+        lightning_module = lighting_module_given(config)
         trainer = Trainer(deterministic=True,
                             max_epochs=config['max_epochs'], 
                             enable_progress_bar=True,
@@ -44,26 +42,25 @@ def train(tune_config:dict,
         trainer.fit(lightning_module)
         trainer.validate(lightning_module, verbose=True)
     else:
-        wandb.finish()
-        wandb_logger = WandbLogger(project=config['project_name'], log_model='all', 
-                                   save_dir=f'{os.getcwd()}/')
-        run = wandb.init()
+        # wandb.finish()
+        # wandb_logger = WandbLogger(project=config['project_name'], log_model='all', 
+        #                            save_dir=f'{os.getcwd()}/')
+        # run = wandb.init()
         # print(f'################################{run.name}##############################')
 
-        lightning_module = lighting_module_given(full_config)
+        lightning_module = lighting_module_given(config)
 
         trainer = Trainer(deterministic=True,
                           max_epochs=config['max_epochs'], 
                           enable_progress_bar=False,
-                          logger=wandb_logger,
+                        #   logger=wandb_logger,
                           callbacks=[_TuneReportCallback()]
                         )
         trainer.fit(lightning_module)
-        run.finish()
+        # run.finish()
 
 
-def optimize_system(tune_config_dict:dict,
-                    config:dict,           
+def optimize_system(config:dict,           
                     lighting_module_given:LightningModuleBaseClass):
     scheduler = ASHAScheduler(
                             max_t=config['max_epochs'],
@@ -73,7 +70,7 @@ def optimize_system(tune_config_dict:dict,
                         parameter_columns=["n_hlay", "hdim", "b_size", 'lr', 'act_fn', 'loss_fn', 'opt'],
                         metric_columns=["val/loss", "val/x_accuracy", "training_iteration"])
 
-    train_fn_with_parameters = tune.with_parameters(train, config=config, lighting_module_given=lighting_module_given)
+    train_fn_with_parameters = tune.with_parameters(train, lighting_module_given=lighting_module_given)
     
     resources_per_trial = {"cpu": config['cpu_num'], "gpu": config['gpu_num']}
 
@@ -97,7 +94,7 @@ def optimize_system(tune_config_dict:dict,
                                     ],
                                  local_dir=config['path']+'run_logs/'
         ),
-        param_space=tune_config_dict,
+        param_space=config,
     )
     results = tuner.fit()
     print("Best hyperparameters found were: ", json.dumps(results.get_best_result().config, indent=4))
