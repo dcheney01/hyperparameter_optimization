@@ -38,15 +38,14 @@ if __name__ == '__main__':
     # except Exception as e:
     #     print(f"Could not instantiate the Inverted Pendulum Lightning Module. Got the following error: {e}")
 
-    # # Test the training loop -------------------------------------------
-    # try:
-    #     train(ip_tune_config, 
-    #           test_ip_config, 
-    #           InvertedPendulumLightningModule,
-    #           notune=True)
-    #     print("\nTraining Loop Successfully Tested...")
-    # except Exception as e: 
-    #     print(f"\nCould not complete training loop due to {e}")
+    # Test the training loop -------------------------------------------
+    try:
+        train(test_ip_config, 
+              InvertedPendulumLightningModule,
+              notune=True)
+        print("\nTraining Loop Successfully Tested...")
+    except Exception as e: 
+        print(f"\nCould not complete training loop due to {e}")
 
     # Run the actual optimization
-    optimize_system(ip_config, InvertedPendulumLightningModule)
+    # optimize_system(ip_config, InvertedPendulumLightningModule)

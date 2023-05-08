@@ -22,9 +22,9 @@ class LightningModuleBaseClass(pl.LightningModule):
         # Set network architecture
         if config['nn_arch'] == 'simple_fnn':
             network_architecture = SimpleLinearNN
-        if config['nn_arch'] == 'lstm':
+        elif config['nn_arch'] == 'lstm':
             network_architecture = LSTM_CUSTOM
-        if config['transformer'] == 'transformer':
+        elif config['nn_arch'] == 'transformer':
             network_architecture = TransformerModule
         else:
             raise ValueError(f"Unknown Network Architecture. Got {config['nn_arch']}")
@@ -51,6 +51,8 @@ class LightningModuleBaseClass(pl.LightningModule):
         else:
             raise ValueError(f"Incorrect Loss Function in tune search space. Got {config['loss_fn']}")
 
+        self.save_hyperparameters()
+        
         self.model = network_architecture(
             config['n_inputs'],
             config['n_outputs'],

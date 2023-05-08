@@ -52,19 +52,25 @@ def CostFunc(x, u, xgoal, ugoal, final_timestep=False):
     return cost
 
 if __name__=="__main__":
-    # Very accurate Model (0.01 rads)
-    params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/train_ip_2023-04-04_10-43-04/train_ip_1fe95f8c_13_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,hdim=256,loss_fn=mse,lr=0.0003,max_epochs=500,n_hlay=0,nn_arc_2023-04-04_11-38-55/params.json'
-    checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/train_ip_2023-04-04_10-43-04/train_ip_1fe95f8c_13_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,hdim=256,loss_fn=mse,lr=0.0003,max_epochs=500,n_hlay=0,nn_arc_2023-04-04_11-38-55/data-points-run/fancy-totem-203/hyperparam_opt_ip/ju0gk1hp/checkpoints/epoch=498-step=1871250.ckpt'
+    params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_7ad1aaeb_156_accuracy_tolerance=0.0100,act_fn=relu,b_size=32,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_03-41-09/params.json'
+    checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_7ad1aaeb_156_accuracy_tolerance=0.0100,act_fn=relu,b_size=32,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_03-41-09/lightning_logs/version_0/checkpoints/epoch=498-step=748500.ckpt'
+
+    # params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_21f01584_85_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,gen_2023-05-03_20-58-32/params.json'
+    # checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_21f01584_85_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,gen_2023-05-03_20-58-32/lightning_logs/version_0/checkpoints/epoch=498-step=1497000.ckpt'
     
-    # Less accurate Model (0.1 rads)
-    # params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/train_ip_2023-03-31_16-25-01/train_ip_8cfb3b02_45_accuracy_tolerance=0.1000,act_fn=relu,b_size=32,hdim=32,loss_fn=mse,lr=0.0011,max_epochs=250,n_hlay=1,nn_arch_2023-03-31_17-29-03/params.json'
-    # checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/train_ip_2023-03-31_16-25-01/train_ip_8cfb3b02_45_accuracy_tolerance=0.1000,act_fn=relu,b_size=32,hdim=32,loss_fn=mse,lr=0.0011,max_epochs=250,n_hlay=1,nn_arch_2023-03-31_17-29-03/data-points-run/magic-meadow-135/hyperparam_opt_ip/wa40a705/checkpoints/epoch=248-step=77937.ckpt'
-    
+    # params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_2528e9d6_184_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_04-34-57/params.json'
+    # checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_2528e9d6_184_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_04-34-57/lightning_logs/version_0/checkpoints/epoch=498-step=1497000.ckpt'
+
+    # params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_716827a7_60_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,gen_2023-05-03_16-45-47/params.json'
+    # checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_716827a7_60_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,gen_2023-05-03_16-45-47/lightning_logs/version_0/checkpoints/epoch=498-step=1497000.ckpt'
+
+    # params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_e49cea1a_125_accuracy_tolerance=0.0100,act_fn=relu,b_size=32,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_01-56-18/params.json'
+    # checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_e49cea1a_125_accuracy_tolerance=0.0100,act_fn=relu,b_size=32,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_01-56-18/lightning_logs/version_0/checkpoints/epoch=498-step=748500.ckpt'
+
     with open(params_path, 'r') as f:
         config = json.load(f)
-    # ran a few without this in the config
-    config['calculates_xdot'] = False
-    json.dumps(config)
+
+    print(json.dumps(config, indent=4))
 
     learned_sys = IP_LearnedModel(model_path=None, config=config)
     learned_forward = learned_sys.forward_simulate_dt
@@ -107,7 +113,7 @@ if __name__=="__main__":
                                         crossover_method=crossover_method,
                                         seed=True)
 
-    realTimeHorizon = 525
+    realTimeHorizon = 800
 
     # Initial Conditions
     elapsedTime = 0
@@ -121,6 +127,7 @@ if __name__=="__main__":
     u = u0 # initial inputs
     x_hist = np.zeros([learned_sys.numStates, realTimeHorizon])
     u_hist = np.zeros([learned_sys.numInputs, realTimeHorizon])
+
     gifFrames = []
     t = np.linspace(0,realTimeHorizon,num=int(realTimeHorizon*50+1))
     best_cost_hist = np.zeros(t.shape)

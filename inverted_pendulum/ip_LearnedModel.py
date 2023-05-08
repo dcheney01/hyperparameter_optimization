@@ -17,7 +17,7 @@ from InvertedPendulum import InvertedPendulum
 from hyperparam_optimization.BASE.NN_Architectures import *
 
 class IP_LearnedModel(InvertedPendulum):
-    def __init__(self, model_path=None, config=None, use_gpu=True, normalized=False):
+    def __init__(self, model_path=None, config=None, use_gpu=True):
         super().__init__
         self.num_outputs = 2
         self.num_inputs = 3
@@ -44,7 +44,7 @@ class IP_LearnedModel(InvertedPendulum):
         if model_path is None:
             self.model = InvertedPendulumLightningModule(self.config)
         else:
-            self.model = InvertedPendulumLightningModule.load_from_checkpoint(model_path)
+            self.model = InvertedPendulumLightningModule.load_from_checkpoint(model_path, config=self.config)
 
         if self.use_gpu==True:
             self.model = self.model.cuda()
@@ -60,7 +60,10 @@ class IP_LearnedModel(InvertedPendulum):
         if self.use_gpu==True:
             inputs_tensor = inputs_tensor.cuda()
 
-        xdot = self.model(self.input_var).cpu().detach().numpy().T
+        xdot = self.model(inputs_tensor).cpu().detach().numpy().T
+
+        if self.config['normalized_data']:
+            xdot *= self.xScale
 
         return xdot
     
@@ -86,7 +89,7 @@ class IP_LearnedModel(InvertedPendulum):
         # # enforce input constraints
         u = np.clip(u,self.uMin,self.uMax)
 
-        if self.config['calculates_xdot']:
+        if self.config['learn_mode'] == 'x_dot':
             if method == 'euler':
                 x_dot = self.calc_state_derivs(x, u)
                 x = x + x_dot*dt
@@ -102,16 +105,10 @@ class IP_LearnedModel(InvertedPendulum):
                 print(s)
                 x_dot = self.calc_state_derivs(x, u)
                 x = x + x_dot*dt
+        elif self.config['learn_mode'] == 'x':
+            x = self.calc_state_derivs(x, u)
         else:
-            xNorm = x/self.xScale
-            uNorm = u/self.uScale
-            inputs = np.vstack([xNorm,uNorm]).T
-            inputs_tensor = torch.tensor(inputs).float()
-
-            if self.use_gpu==True:
-                inputs_tensor = inputs_tensor.cuda()
-
-            x = self.model(inputs_tensor).cpu().detach().numpy().T
+            raise ValueError(f"Invalid learn_mode. Must be x or x_dot. Got {self.config['learn_mode']}")
 
         if self.wrapAngle.any() == True:
             low = self.wrapRange[0]
@@ -129,9 +126,21 @@ class IP_LearnedModel(InvertedPendulum):
         
 
 if __name__=='__main__':
-    params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/train_ip_2023-04-04_10-43-04/train_ip_1fe95f8c_13_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,hdim=256,loss_fn=mse,lr=0.0003,max_epochs=500,n_hlay=0,nn_arc_2023-04-04_11-38-55/params.json'
-    checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/train_ip_2023-04-04_10-43-04/train_ip_1fe95f8c_13_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,hdim=256,loss_fn=mse,lr=0.0003,max_epochs=500,n_hlay=0,nn_arc_2023-04-04_11-38-55/data-points-run/fancy-totem-203/hyperparam_opt_ip/ju0gk1hp/checkpoints/epoch=498-step=1871250.ckpt'
+    # params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_7ad1aaeb_156_accuracy_tolerance=0.0100,act_fn=relu,b_size=32,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_03-41-09/params.json'
+    # checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_7ad1aaeb_156_accuracy_tolerance=0.0100,act_fn=relu,b_size=32,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_03-41-09/lightning_logs/version_0/checkpoints/epoch=498-step=748500.ckpt'
+
+    # params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_21f01584_85_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,gen_2023-05-03_20-58-32/params.json'
+    # checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_21f01584_85_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,gen_2023-05-03_20-58-32/lightning_logs/version_0/checkpoints/epoch=498-step=1497000.ckpt'
     
+    # params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_2528e9d6_184_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_04-34-57/params.json'
+    # checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_2528e9d6_184_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_04-34-57/lightning_logs/version_0/checkpoints/epoch=498-step=1497000.ckpt'
+
+    params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_716827a7_60_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,gen_2023-05-03_16-45-47/params.json'
+    checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_716827a7_60_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,gen_2023-05-03_16-45-47/lightning_logs/version_0/checkpoints/epoch=498-step=1497000.ckpt'
+
+    # params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_e49cea1a_125_accuracy_tolerance=0.0100,act_fn=relu,b_size=32,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_01-56-18/params.json'
+    # checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_e49cea1a_125_accuracy_tolerance=0.0100,act_fn=relu,b_size=32,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_01-56-18/lightning_logs/version_0/checkpoints/epoch=498-step=748500.ckpt'
+
     with open(params_path, 'r') as f:
         config = json.load(f)
 
@@ -147,16 +156,56 @@ if __name__=='__main__':
     x_analytical[1] = .001
     u_analytical = np.zeros([1,1]) 
 
-    dt = .01
+    dt = config['dt']
     plt.ion()
-    horizon = 1000
+    horizon = 1200
+    x_learned_list = []
+    x_analytical_list = []
+    xdot_learned_list = []
+    xdot_analytical_list = []
+
+    x_error = []
+    xdot_error = []
+
     for i in range(0, horizon):
         x_learned = learned_system.forward_simulate_dt(x_learned, u_learned, dt)
         x_analytical = analytical_system.forward_simulate_dt(x_analytical, u_analytical, dt)
-        print(x_analytical)
-        if i%5==0:
-            plt.figure(1)
-            learned_system.visualize(x_learned, u_learned)
 
-            plt.figure(2)
-            analytical_system.visualize(x_analytical, u_analytical)    
+
+        x_learned_list.append(x_learned[0])
+        x_analytical_list.append(x_analytical[0])
+        xdot_learned_list.append(x_learned[1])
+        xdot_analytical_list.append(x_analytical[1])
+
+        x_error.append((x_analytical[0] - x_learned[0])**2)
+        xdot_error.append((x_analytical[1] - x_learned[1])**2)
+
+        # if i%5==0:
+        #     plt.figure(1)
+        #     learned_system.visualize(x_learned, u_learned)
+
+        #     plt.figure(2)
+        #     analytical_system.visualize(x_analytical, u_analytical)    
+
+    time_steps = [i for i in range(horizon)]
+
+    plt.ioff()
+    plt.figure()
+    plt.plot(time_steps, x_learned_list, "-b", label='x_learned')
+    plt.plot(time_steps, x_analytical_list, "-r", label='x_analytical')
+    plt.legend(loc="upper right")
+
+    plt.figure()
+    plt.plot(time_steps, xdot_learned_list, "-b", label='xdot_learned')
+    plt.plot(time_steps, xdot_analytical_list, "-r", label='xdot_analytical')
+    plt.legend(loc="upper right")
+
+    plt.figure()
+    plt.plot(time_steps, x_error, "-b", label='x_error')
+    plt.plot(time_steps, xdot_error, "-r", label='xdot_error')
+    plt.legend(loc="upper right")
+
+    print(f'total x_error**2: {sum(x_error)}')
+    print(f'total xdot_error**2: {sum(xdot_error)}')
+
+    plt.show()
