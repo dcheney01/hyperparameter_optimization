@@ -54,20 +54,48 @@ def CostFunc(x, u, xgoal, ugoal, final_timestep=False):
 
 if __name__=="__main__":
     # Very accurate Model (0.01 rads)
-    params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/train_ip_2023-04-04_10-43-04/train_ip_1fe95f8c_13_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,hdim=256,loss_fn=mse,lr=0.0003,max_epochs=500,n_hlay=0,nn_arc_2023-04-04_11-38-55/params.json'
-    checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/train_ip_2023-04-04_10-43-04/train_ip_1fe95f8c_13_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,hdim=256,loss_fn=mse,lr=0.0003,max_epochs=500,n_hlay=0,nn_arc_2023-04-04_11-38-55/data-points-run/fancy-totem-203/hyperparam_opt_ip/ju0gk1hp/checkpoints/epoch=498-step=1871250.ckpt'
+    params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/lightning_logs/version_1/hparams.yaml'
+    checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/lightning_logs/version_1/checkpoints/epoch=499-step=1875000.ckpt'
     
     # Less accurate Model (0.1 rads)
     # params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/train_ip_2023-03-31_16-25-01/train_ip_8cfb3b02_45_accuracy_tolerance=0.1000,act_fn=relu,b_size=32,hdim=32,loss_fn=mse,lr=0.0011,max_epochs=250,n_hlay=1,nn_arch_2023-03-31_17-29-03/params.json'
     # checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/train_ip_2023-03-31_16-25-01/train_ip_8cfb3b02_45_accuracy_tolerance=0.1000,act_fn=relu,b_size=32,hdim=32,loss_fn=mse,lr=0.0011,max_epochs=250,n_hlay=1,nn_arch_2023-03-31_17-29-03/data-points-run/magic-meadow-135/hyperparam_opt_ip/wa40a705/checkpoints/epoch=248-step=77937.ckpt'
     
-    with open(params_path, 'r') as f:
-        config = json.load(f)
+
+    config = {
+        'run_name': 'data-points-run',
+        'project_name': 'hyperparam_opt_ip',
+
+        # Parameters to Optimize
+        'b_size': 16,
+        'n_hlay': 0,
+        'hdim': 512,
+        'lr': 0.0002,
+        'act_fn': 'relu',
+        'loss_fn': 'mse',
+        'opt': 'adam',
+
+        # Parameters that I eventually want to optimize
+        'nn_arch': 'simple_fnn',
+
+        # Other Configuration Parameters
+        'accuracy_tolerance': 0.01, # This translates to about 1/2 a degree
+        'calculates_xdot':False,
+        'num_workers': 8,
+
+        # Optimization Tool Parameters
+        'max_epochs': 500,
+        'num_samples': 250,
+        'path': '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/',
+    }
+
+    # with open(params_path, 'r') as f:
+    #     config = json.load(f)
     # ran a few without this in the config
     config['calculates_xdot'] = False
-    json.dumps(config)
+    print(json.dumps(config, indent=4))
 
-    learned_sys = IP_LearnedModel(model_path=None, config=config)
+    learned_sys = IP_LearnedModel(model_path=checkpoint_path, config=config)
     learned_forward = learned_sys.forward_simulate_dt
 
     analytical_sys = InvertedPendulum()
@@ -108,7 +136,7 @@ if __name__=="__main__":
                                         crossover_method=crossover_method,
                                         seed=True)
 
-    realTimeHorizon = 525
+    realTimeHorizon = 650
 
     # Initial Conditions
     elapsedTime = 0

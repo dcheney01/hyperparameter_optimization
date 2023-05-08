@@ -1,0 +1,17 @@
+config:
+  run_name: data-points-run
+  project_name: hyperparam_opt_ip
+  b_size: 16
+  n_hlay: 0
+  hdim: 512
+  lr: 0.0002
+  act_fn: relu
+  loss_fn: mse
+  opt: adam
+  nn_arch: simple_fnn
+  accuracy_tolerance: 0.01
+  calculates_xdot: false
+  num_workers: 8
+  max_epochs: 500
+  num_samples: 250
+  path: /home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/
