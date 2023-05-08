@@ -10,9 +10,9 @@ from ray.tune.search.optuna import OptunaSearch
 from ray.air.integrations.wandb import WandbLoggerCallback
 
 import wandb
-os.environ['WANDB_SILENT']="true"
 
 import os, sys, json
+os.environ['WANDB_SILENT']="true"
 
 sys.path.append('/home/daniel/research/catkin_ws/src/')
 from InvertedPendulumLightning import InvertedPendulumLightning
@@ -101,21 +101,21 @@ if __name__ == '__main__':
         'project_name': 'hyperparam_opt_ip',
 
         # Parameters to Optimize
-        # 'b_size': 32,
-        # 'n_hlay': 3,
-        # 'hdim': 20,
-        # 'lr': 0.001,
-        # 'act_fn': 'relu',
-        # 'loss_fn': 'mse',
-        # 'opt': 'adam',
+        'b_size': 16,
+        'n_hlay': 0,
+        'hdim': 512,
+        'lr': 0.0002,
+        'act_fn': 'relu',
+        'loss_fn': 'mse',
+        'opt': 'adam',
 
-        'b_size': tune.choice([16, 32, 64, 128, 256, 512]),
-        'n_hlay': tune.choice(list(i for i in range(11))),
-        'hdim': tune.choice(2**i for i in range(3, 11)),
-        'lr': tune.loguniform(1e-5, 1e-1),
-        'act_fn': tune.choice(['relu', 'tanh']),#, 'sigmoid']),#, 'softmax']),
-        'loss_fn': tune.choice(['mse', 'mae']),#, 'cross_entropy']),
-        'opt': tune.choice(['adam', 'sgd']),# 'ada', 'lbfgs', 'rmsprop']),
+        # 'b_size': tune.choice([16, 32, 64, 128, 256, 512]),
+        # 'n_hlay': tune.choice(list(i for i in range(11))),
+        # 'hdim': tune.choice(2**i for i in range(3, 11)),
+        # 'lr': tune.loguniform(1e-5, 1e-1),
+        # 'act_fn': tune.choice(['relu', 'tanh']),#, 'sigmoid']),#, 'softmax']),
+        # 'loss_fn': tune.choice(['mse', 'mae']),#, 'cross_entropy']),
+        # 'opt': tune.choice(['adam', 'sgd']),# 'ada', 'lbfgs', 'rmsprop']),
 
         # Parameters that I eventually want to optimize
         'nn_arch': 'simple_fnn',
@@ -124,7 +124,7 @@ if __name__ == '__main__':
         # 'accuracy_tolerance': 0.1, # This translates to about 5 degrees
         'accuracy_tolerance': 0.01, # This translates to about 1/2 a degree
         'calculates_xdot':False,
-        'num_workers': 6,
+        'num_workers': 8,
 
         # Optimization Tool Parameters
         'max_epochs': 500,
@@ -132,5 +132,5 @@ if __name__ == '__main__':
         'path': '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/',
         }
 # 
-    main(config)
-    # train_ip(config, notune=True)
+    # main(config)
+    train_ip(config, notune=True)

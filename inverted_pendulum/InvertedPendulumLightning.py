@@ -144,11 +144,11 @@ class InvertedPendulumLightning(pl.LightningModule):
     
     def train_dataloader(self):
         train_dataset = InvertedPendulumDataset(self.config['path']+'/data/train_')
-        train_loader = DataLoader(train_dataset, batch_size=self.config['b_size'])
+        train_loader = DataLoader(train_dataset, batch_size=self.config['b_size'], num_workers=self.config['num_workers'])
         return train_loader
 
     def val_dataloader(self):
         val_dataset = InvertedPendulumDataset(self.config['path']+'/data/validation_')
-        val_loader = DataLoader(val_dataset, batch_size=self.config['b_size'])
+        val_loader = DataLoader(val_dataset, batch_size=self.config['b_size'], num_workers=self.config['num_workers'])
         return val_loader
 
