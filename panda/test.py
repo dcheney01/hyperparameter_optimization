@@ -22,6 +22,7 @@ for i in range(datapoints):
 
     env.reset()
     # env.robots[0].reset(deterministic=False)
+    robot.set_robot_joint_positions(joint_positions)
 
     for j in range(trajectory_len):
         obs, reward, done, info = env.step(action)  # take action in the environment

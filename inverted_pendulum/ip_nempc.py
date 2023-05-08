@@ -8,6 +8,8 @@ from nonlinear_empc.NonlinearEMPC import NonlinearEMPC
 from rad_models.InvertedPendulum import InvertedPendulum
 from ip_LearnedModel import IP_LearnedModel
 
+from ip_config import test_ip_config
+
 """
 This file takes a learned model of the inverted pendulum and controls it with NEMPC
 """
@@ -52,8 +54,8 @@ def CostFunc(x, u, xgoal, ugoal, final_timestep=False):
     return cost
 
 if __name__=="__main__":
-    params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_7ad1aaeb_156_accuracy_tolerance=0.0100,act_fn=relu,b_size=32,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_03-41-09/params.json'
-    checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_7ad1aaeb_156_accuracy_tolerance=0.0100,act_fn=relu,b_size=32,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_03-41-09/lightning_logs/version_0/checkpoints/epoch=498-step=748500.ckpt'
+    # params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_7ad1aaeb_156_accuracy_tolerance=0.0100,act_fn=relu,b_size=32,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_03-41-09/params.json'
+    checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/lightning_logs/version_1/checkpoints/epoch=499-step=1875000.ckpt'
 
     # params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_21f01584_85_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,gen_2023-05-03_20-58-32/params.json'
     # checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_21f01584_85_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,gen_2023-05-03_20-58-32/lightning_logs/version_0/checkpoints/epoch=498-step=1497000.ckpt'
@@ -67,9 +69,10 @@ if __name__=="__main__":
     # params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_e49cea1a_125_accuracy_tolerance=0.0100,act_fn=relu,b_size=32,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_01-56-18/params.json'
     # checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_e49cea1a_125_accuracy_tolerance=0.0100,act_fn=relu,b_size=32,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_01-56-18/lightning_logs/version_0/checkpoints/epoch=498-step=748500.ckpt'
 
-    with open(params_path, 'r') as f:
-        config = json.load(f)
+    # with open(params_path, 'r') as f:
+    #     config = json.load(f)
 
+    config = test_ip_config
     print(json.dumps(config, indent=4))
 
     learned_sys = IP_LearnedModel(model_path=None, config=config)

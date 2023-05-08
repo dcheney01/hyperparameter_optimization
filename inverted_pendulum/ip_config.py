@@ -53,7 +53,7 @@ test_ip_config = {
         'nn_arch': 'simple_fnn',
 
         # Parameters to Optimize
-        'b_size': 512,
+        'b_size': 16,
         'n_hlay': 0,
         'hdim': 512,
         'lr': 0.0001,

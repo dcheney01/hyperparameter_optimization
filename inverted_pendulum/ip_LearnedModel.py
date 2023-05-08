@@ -61,9 +61,7 @@ class IP_LearnedModel(InvertedPendulum):
             inputs_tensor = inputs_tensor.cuda()
 
         xdot = self.model(inputs_tensor).cpu().detach().numpy().T
-
-        if self.config['normalized_data']:
-            xdot *= self.xScale
+        xdot *= self.xScale # will be unchanged for non-normalized data
 
         return xdot
     
