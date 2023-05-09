@@ -46,7 +46,7 @@ class IP_LearnedModel(InvertedPendulum):
         else:
             self.model = InvertedPendulumLightningModule.load_from_checkpoint(model_path, config=self.config)
 
-        if self.use_gpu==True:
+        if self.use_gpu:
             self.model = self.model.cuda()
 
         self.model.eval()
@@ -81,11 +81,15 @@ class IP_LearnedModel(InvertedPendulum):
         # x = x.reshape([self.numStates, x.shape[1]])
         xcols = np.shape(x)[1]
 
-        # enforce state constraints
+        # enforce state and input constraints
+        # if self.use_gpu:
+        #     x = np.clip(x.cpu(), self.xMin, self.xMax)
+        #     u = np.clip(u.cpu(), self.uMin,self.uMax)
+        # else:
         x = np.clip(x, self.xMin, self.xMax)
+        u = np.clip(u, self.uMin, self.uMax)
 
-        # # enforce input constraints
-        u = np.clip(u,self.uMin,self.uMax)
+
 
         if self.config['learn_mode'] == 'x_dot':
             if method == 'euler':
