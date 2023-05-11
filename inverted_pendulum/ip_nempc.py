@@ -42,8 +42,8 @@ def CostFunc(x, u, xgoal, ugoal, use_gpu=True, prev_u=None, final_timestep=False
     # Cost
     # start = time.time()
     if use_gpu:
-        Q = 1.0*torch.diag(torch.tensor([0, 1.0])).cuda()
-        Qf = 5.0*torch.diag(torch.tensor([0, 1.0])).cuda()
+        Q = 1.0*torch.diag(torch.tensor([0.0, 1.0])).cuda()
+        Qf = 5.0*torch.diag(torch.tensor([0.0, 1.0])).cuda()
         R = .0*torch.diag(torch.tensor([1.0])).cuda()
         if final_timestep:
             Qx = torch.abs(torch.mm(Qf, x-xgoal)**2.0)
@@ -69,28 +69,8 @@ def CostFunc(x, u, xgoal, ugoal, use_gpu=True, prev_u=None, final_timestep=False
         # print(f'cost time: {end-start}')
     return cost
 
-if __name__=="__main__":
-    # params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_7ad1aaeb_156_accuracy_tolerance=0.0100,act_fn=relu,b_size=32,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_03-41-09/params.json'
-    # checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/lightning_logs/version_1/checkpoints/epoch=499-step=1875000.ckpt'
-    # config = test_ip_config
 
-    # params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_21f01584_85_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,gen_2023-05-03_20-58-32/params.json'
-    # checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_21f01584_85_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,gen_2023-05-03_20-58-32/lightning_logs/version_0/checkpoints/epoch=498-step=1497000.ckpt'
-    
-    # params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_2528e9d6_184_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_04-34-57/params.json'
-    # checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_2528e9d6_184_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_04-34-57/lightning_logs/version_0/checkpoints/epoch=498-step=1497000.ckpt'
-
-    params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_716827a7_60_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,gen_2023-05-03_16-45-47/params.json'
-    checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_716827a7_60_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,gen_2023-05-03_16-45-47/lightning_logs/version_0/checkpoints/epoch=498-step=1497000.ckpt'
-
-    # params_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_e49cea1a_125_accuracy_tolerance=0.0100,act_fn=relu,b_size=32,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_01-56-18/params.json'
-    # checkpoint_path = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_e49cea1a_125_accuracy_tolerance=0.0100,act_fn=relu,b_size=32,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,ge_2023-05-04_01-56-18/lightning_logs/version_0/checkpoints/epoch=498-step=748500.ckpt'
-
-    with open(params_path, 'r') as f:
-        config = json.load(f)
-
-    print(json.dumps(config, indent=4))
-
+def ip_nempc(checkpoint_path, config, visualize=False, plot=False):
     # NEMPC Controller Parameters
     horizon = 50
     numSims = 500
@@ -103,10 +83,8 @@ if __name__=="__main__":
     crossover_method = 'knot_point'
 
     dt = config['dt']
-    visualize = True
     useGPU = False
-    use_model_gpu = True
-    angle_wrapping = True
+    use_model_gpu = False
 
     def cost_wrapper(x, u, xgoal, ugoal, prev_u=None, final_timestep=False):
         use_gpu = useGPU
@@ -144,11 +122,11 @@ if __name__=="__main__":
                                 numParents=numParents, 
                                 numStrangers=numStrangers, 
                                 crossover_method=crossover_method,
-                                seed=True)
-
+                                seed=True,
+                                display=plot)
 
     # Initial Conditions
-    x = np.array([0, -np.pi]).reshape(learned_sys.numStates, 1) # initial state
+    x = np.array([0, -np.pi]).reshape(learned_sys.numStates, 1) # initial state (thetadot, theta)
     u = np.zeros([learned_sys.numInputs, 1]) # initial input
 
     xgoal = np.zeros([learned_sys.numStates, 1])
@@ -157,9 +135,11 @@ if __name__=="__main__":
     # Plotting variables
     x_hist = np.zeros([learned_sys.numStates, realTimeHorizon])
     u_hist = np.zeros([learned_sys.numInputs, realTimeHorizon])
+    error_hist = np.zeros([realTimeHorizon,])
     solve_time_hist = np.zeros([realTimeHorizon,])
 
-    plt.gcf().canvas.draw()
+    if visualize:
+        plt.gcf().canvas.draw()
 
     # Forward Simulate with Controller
     for i in tqdm(range(0, realTimeHorizon)):            
@@ -174,6 +154,12 @@ if __name__=="__main__":
         solve_time_hist[i] = (end - start)
 
         x = analytical_forward(x, u, dt) # take the input and apply it to the analytical system
+        if x[1] < -np.pi:
+            theta = -np.pi + np.abs(x[1] + np.pi)
+        else:
+            theta = x[1]
+
+        error_hist[i] = np.abs(theta - xgoal[1]) # error for theta, position
 
         if visualize:
             analytical_sys.visualize(x)
@@ -192,33 +178,67 @@ if __name__=="__main__":
                         save_all=True,
                         duration=realTimeHorizon*dt*.75, loop=1)
         
-    print(f'Average solve time (not including first 3): {np.mean(solve_time_hist)}')
+    iae_metric = np.sum(error_hist)
+    avg_resting_pos = np.mean(x_hist[1, -20:])
+    if avg_resting_pos < -1.8*np.pi: # meaning the angle is flipped (it settled at 2pi instead of 0, which is the same)
+        control_successful = avg_resting_pos > -2.1*np.pi and avg_resting_pos < -1.9*np.pi
+    else:
+        control_successful = avg_resting_pos < xgoal[0] + 0.1 and avg_resting_pos > xgoal[0] - 0.1
 
-    # Plotting                    
-    plt.figure("Position")
-    plt.subplot(4, 1, 1)
-    plt.plot(x_hist[1, :].T)
-    plt.ylabel("Theta (rad)")
-    plt.title("Nonlinear EMPC Position")
-    plt.grid(True)
+    if plot:
+        print(f'Average solve time (not including first 3): {np.mean(solve_time_hist)}')
+        print(f'IAE measure of control performance: {iae_metric}') # https://www.online-courses.vissim.us/Strathclyde/measures_of_controlled_system_pe.htm
 
-    plt.subplot(4, 1, 2)
-    plt.plot(x_hist[0, :].T)        
-    plt.ylabel("Vel (rad/s)")
-    plt.title("Nonlinear EMPC Velocity")
-    plt.grid(True)
+        # Plotting                    
+        plt.figure("Position")
+        plt.subplot(5, 1, 1)
+        plt.plot(x_hist[1, :].T)
+        plt.ylabel("Theta (rad)")
+        plt.title("Nonlinear EMPC Position")
+        plt.grid(True)
 
-    plt.subplot(4, 1, 3)
-    plt.plot(u_hist[0, :].T)
-    plt.ylabel("Torque (N")
-    plt.title("Nonlinear EMPC Inputs")
-    plt.grid(True)
+        plt.subplot(5, 1, 2)
+        plt.plot(x_hist[0, :].T)        
+        plt.ylabel("Vel (rad/s)")
+        plt.title("Nonlinear EMPC Velocity")
+        plt.grid(True)
 
-    plt.subplot(4, 1, 4)
-    plt.plot(solve_time_hist[3:].T)        
-    plt.ylabel("Time (s)")
-    plt.title("Solve time at each time step")
-    plt.grid(True)
+        plt.subplot(5, 1, 3)
+        plt.plot(u_hist[0, :].T)
+        plt.ylabel("Torque (N")
+        plt.title("Nonlinear EMPC Inputs")
+        plt.grid(True)
 
-    plt.ioff()
-    plt.show()
+        plt.subplot(5, 1, 4)
+        plt.plot(solve_time_hist[3:].T)        
+        plt.ylabel("Time (s)")
+        plt.title("Solve time at each time step")
+        plt.grid(True)
+
+        plt.subplot(5, 1, 5)
+        plt.plot(error_hist.T)        
+        plt.ylabel("IAE")
+        plt.title("Control error at each time step")
+        plt.grid(True)
+
+        plt.ioff()
+        plt.show()
+
+    return iae_metric, control_successful
+
+
+if __name__=="__main__":
+    # Known working model
+    trial_dir = '/home/daniel/research/catkin_ws/src/hyperparam_optimization/inverted_pendulum/run_logs/fnn_optimization/train_21f01584_85_accuracy_tolerance=0.0100,act_fn=relu,b_size=16,calculates_xdot=False,cpu_num=3,dataset_size=60000,dt=0.0100,gen_2023-05-03_20-58-32'
+    
+    # get the checkpoint
+    import glob
+    checkpoint_path = glob.glob(trial_dir + '/lightning_logs/version_0/checkpoints/*.ckpt')[0]
+
+    # get the config file
+    with open(trial_dir + '/params.json', 'r') as f:
+        config = json.load(f)
+
+    print(json.dumps(config, indent=4))
+
+    ip_nempc(checkpoint_path=checkpoint_path, config=config, visualize=False, plot=True)

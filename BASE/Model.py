@@ -33,20 +33,12 @@ class Model():
         xcols = np.shape(x)[1]
 
         u = deepcopy(u)
-        if np.isscalar(self.uMax):
-            uMax = np.repeat(self.uMax, self.numInputs).reshape(
-                self.numInputs, -1)
-            uMin = np.repeat(self.uMin, self.numInputs).reshape(
-                self.numInputs, -1)
-        else:
-            uMax = self.uMax.reshape(self.numInputs, -1)
-            uMin = self.uMin.reshape(self.numInputs, -1)
 
         # # enforce state constraints
-        # too_high = np.where(x > self.xMax)
-        # x[too_high] = self.xMax[too_high]
-        # too_low = np.where(x < self.xMin)
-        # x[too_low] = self.xMin[too_low]
+        too_high = np.where(x > self.xMax)
+        x[too_high] = self.xMax[too_high]
+        too_low = np.where(x < self.xMin)
+        x[too_low] = self.xMin[too_low]
 
         # # enforce input constraints
         u = np.clip(u,self.uMin,self.uMax)
@@ -67,13 +59,6 @@ class Model():
             print(s)
             x_dot = self.calc_state_derivs(x, u)
             x = x + x_dot*dt
-
-        # if self.wrapAngle.any() == True:
-        #     low = self.wrapRange[0]
-        #     high = self.wrapRange[1]
-        #     cycle = high-low
-        #     # print(cycle)
-        #     x[self.wrapAngle] = (x[self.wrapAngle]+cycle/2) % cycle + low
 
         # make sure output is expected size
         assert np.shape(x) == (self.numStates, xcols),\
@@ -122,11 +107,6 @@ class Model():
             uup[i] = u[i]
             udown[i] = u[i]
 
-            # print(xdot0)
-            # print(A.dot(x))
-            # print(B.dot(u))
-
-        # from IPython import embed; embed()
         w = xdot0.reshape(-self.numStates,1) - A.dot(x).reshape(-self.numStates,1) - B.dot(u).reshape(-self.numStates,1)
 
         return A, B, w
@@ -154,9 +134,6 @@ class Model():
         u = deepcopy(u)
         x = x.reshape(self.numStates, -1)
         A, B, w = self.calc_A_B_w(x, u)
-
-        # print(A)
-        # print(B)
 
         [Ad, Bd] = self.discretize_A_and_B(A, B, dt)
         wd = w*dt
@@ -205,49 +182,9 @@ class Model():
         Dirty derivative filters out noise w/ freq > 1/sigma.
 
         """
-        # from IPython import embed
         beta = (2*sigma - dt)/(2*sigma + dt)
 
-        # embed()
         ydot = beta*self.ydot_prev \
             + (1-beta)/dt * (y - self.y_prev)
 
         return ydot
-
-    def save_gif(self, fig, viz_func, state_hist, dt, filename, args=None):
-        """Saves animation of sys
-
-        --Args--
-        fig: figure to animate on
-        viz_func: function that plots system
-        state_hist: tall matrix, time history of states,size=[time,numStates]
-        dt: float, time step
-        filename: string, what to name .gif file
-        args: tuple, extra arguments to pass to viz_func
-
-        --Returns--
-        None, saves a .gif file in current directory.
-
-        """
-        import matplotlib.animation as animation
-        import matplotlib.pyplot as plt
-
-        # make sure state hist is the correct shape, a tall matrix
-        rows, cols = np.shape(state_hist)
-        if cols > rows:
-            state_hist = state_hist.T
-
-        print("Saving animation")
-
-        # fig = plt.figure(figsize=(5, 5))
-
-        ani = animation.FuncAnimation(fig,
-                                      func=viz_func,
-                                      frames=state_hist,
-                                      fargs=args,
-                                      interval=dt)
-
-        writer = animation.PillowWriter(fps=60)
-        f = filename + '.avi'
-        ani.save(f, writer=writer)
-        plt.close('all')
