@@ -1,0 +1,100 @@
+{
+    "os": "Linux-5.4.0-146-generic-x86_64-with-glibc2.29",
+    "python": "3.8.10",
+    "heartbeatAt": "2023-05-04T02:58:35.744206",
+    "startedAt": "2023-05-04T02:58:35.100817",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "--node-ip-address=10.32.114.243",
+        "--node-manager-port=45079",
+        "--object-store-name=/tmp/ray/session_2023-05-03_10-09-32_440507_826259/sockets/plasma_store",
+        "--raylet-name=/tmp/ray/session_2023-05-03_10-09-32_440507_826259/sockets/raylet",
+        "--redis-address=None",
+        "--temp-dir=/tmp/ray",
+        "--metrics-agent-port=55012",
+        "--logging-rotate-bytes=536870912",
+        "--logging-rotate-backup-count=5",
+        "--gcs-address=10.32.114.243:54561",
+        "--session-name=session_2023-05-03_10-09-32_440507_826259",
+        "--temp-dir=/tmp/ray",
+        "--webui=",
+        "--storage=None",
+        "--startup-token=179"
+    ],
+    "state": "running",
+    "program": "/home/daniel/.local/lib/python3.8/site-packages/ray/_private/workers/default_worker.py",
+    "git": {
+        "remote": "git@github.com:dcheney01/hyperparameter_optimization.git",
+        "commit": "0a238f596a0bf61a1dfa292a216358561e85707b"
+    },
+    "email": "daniel.cheney01@gmail.com",
+    "root": "/home/daniel/research/catkin_ws/src/hyperparam_optimization",
+    "host": "CTB455-Salmon",
+    "username": "daniel",
+    "executable": "/bin/python3",
+    "cpu_count": 4,
+    "cpu_count_logical": 8,
+    "cpu_freq": {
+        "current": 3698.9668749999996,
+        "min": 800.0,
+        "max": 4000.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 3736.243,
+            "min": 800.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3739.438,
+            "min": 800.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3726.448,
+            "min": 800.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3731.296,
+            "min": 800.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3662.739,
+            "min": 800.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3723.245,
+            "min": 800.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3649.065,
+            "min": 800.0,
+            "max": 4000.0
+        },
+        {
+            "current": 3623.261,
+            "min": 800.0,
+            "max": 4000.0
+        }
+    ],
+    "disk": {
+        "total": 136.44643783569336,
+        "used": 111.16812515258789
+    },
+    "gpu": "NVIDIA GeForce GTX 750 Ti",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce GTX 750 Ti",
+            "memory_total": 2147483648
+        }
+    ],
+    "memory": {
+        "total": 15.546943664550781
+    }
+}
