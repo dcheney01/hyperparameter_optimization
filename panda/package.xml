@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>panda_learned</name>
+  <version>1.0.0</version>
+  <description>Package to learn a dynamic model of the panda arm</description>
+
+  <maintainer email="daniel.cheney01@gmail.com">Daniel Cheney</maintainer>
+
+  <license>BSD</license>
+
+  <author email="daniel.cheney01@gmail.com">Daniel Cheney</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- <depend>franka_ros</depend> -->
+
+</package>

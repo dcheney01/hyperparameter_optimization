@@ -24,7 +24,7 @@ class SimpleEnv(SingleArmEnv):
         reward_shaping=False,
         placement_initializer=None,
         has_renderer=True,
-        has_offscreen_renderer=False,
+        has_offscreen_renderer=True,
         render_camera="frontview",
         render_collision_mesh=False,
         render_visual_mesh=True,
