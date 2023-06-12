@@ -35,7 +35,7 @@ class DatasetBaseClass(Dataset):
 
         self.system = system()
 
-        assert type(self.system) is not None, "System type is none. Lightning Module Base class is not properly overrided"
+        assert type(self.system) is not None, "System type is None. Lightning Module Base class is not properly overrided"
         
         if not generate_new_data:
             try:

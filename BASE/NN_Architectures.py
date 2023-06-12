@@ -42,13 +42,17 @@ class LSTM_CUSTOM(nn.Module):
         self.fc_final.apply(init_weights)
     
     def forward(self,x):
-        h_0 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size)) #hidden state
-        c_0 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size)) #internal state
+        # h_0 = Variable(torch.zeros(x.size(0), self.num_layers, self.hidden_size)) #hidden state
+        # c_0 = Variable(torch.zeros(x.size(0), self.num_layers, self.hidden_size)) #internal state
         # Propagate input through LSTM
-        output, (hn, cn) = self.lstm(x, (h_0, c_0)) #lstm with input, hidden, and internal state
-        hn = hn.view(-1, self.hidden_size) #reshaping the data for Dense layer next
-        out = self.activation_fn(hn)
-        out = self.fc_final(out) #Final Output
+        # if len(x.shape) == 2:
+        #     x = torch.unsqueeze(x, 0)
+        output, _ = self.lstm(x) #, (h_0, c_0)) #lstm with input, hidden, and internal state
+
+        # output, (hn, cn) = self.lstm(x) #, (h_0, c_0)) #lstm with input, hidden, and internal state
+        # hn = hn.view(-1, self.hidden_size) #reshaping the data for Dense layer next
+        # out = self.activation_fn(out)
+        out = self.fc_final(output) #Final Output
         return out
 
 class Transformer(nn.Module):
