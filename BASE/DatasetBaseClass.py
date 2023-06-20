@@ -25,7 +25,8 @@ This file generates data to train a learned dynamics model of a given system.
 
 class DatasetBaseClass(Dataset):
     def __init__(self, config: dict, system, validation=False):
-        self.path = config['path'] + ('data/validation_' if validation else 'data/train_') + 'ip_data.json'
+        self.system = system()
+        self.path = config['path'] + ('data/validation_' if validation else 'data/train_') + f'{self.system.name}.json'
         generate_new_data = config['generate_new_data']
 
         self.learn_mode = config['learn_mode']
@@ -33,7 +34,7 @@ class DatasetBaseClass(Dataset):
         self.normalized = config['normalized_data']
         self.dt = config['dt']
 
-        self.system = system()
+        
 
         assert type(self.system) is not None, "System type is None. Lightning Module Base class is not properly overrided"
         
@@ -61,17 +62,17 @@ class DatasetBaseClass(Dataset):
             input = (self.system.uMax - self.system.uMin)*np.random.rand(self.system.numInputs,1) + self.system.uMin
 
             if self.learn_mode == 'xdot':
-                next_state = self.system.calc_state_derivs(state,input)
+                next_state = self.system.calc_state_derivs(state, input)
             elif self.learn_mode == 'x':
                 next_state = self.system.forward_simulate_dt(state, input, self.dt)
 
-            if self.normalized == True:
+            if self.normalized:
                 state /= self.system.xMax
                 input /= self.system.uMax
                 next_state /= self.system.xMax
 
-            data.append(([state[0][0], state[1][0], input[0][0]], 
-                         [next_state[0][0], next_state[1][0]]))
+            data.append(([np.vstack((state, input)).squeeze().tolist(), 
+                         next_state.squeeze().tolist()]))
 
         # save data
         with open(self.path, 'w+') as f:

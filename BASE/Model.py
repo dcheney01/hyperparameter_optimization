@@ -8,6 +8,7 @@ sys.path.append('/home/daniel/research/catkin_ws/src/')
 
 class Model():
     def __init__(self):
+        self.name = None
         self.numStates = None
         self.numInputs = None
         self.uMax = None

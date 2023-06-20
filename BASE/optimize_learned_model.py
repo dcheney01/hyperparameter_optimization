@@ -68,7 +68,10 @@ def optimize_system(config:dict,
                             reduction_factor=4)
     reporter = CLIReporter(
                         parameter_columns=["n_hlay", "hdim", "b_size", 'lr', 'act_fn', 'loss_fn', 'opt'],
-                        metric_columns=["val/loss", "val/x_accuracy", "training_iteration"])
+                        metric_columns=["val/loss", 
+                                        f"val/{config['logmetric1_name']}", 
+                                        f"val/{config['logmetric2_name']}",
+                                        "training_iteration"])
 
     train_fn_with_parameters = tune.with_parameters(train, lighting_module_given=lighting_module_given)
     
@@ -82,8 +85,8 @@ def optimize_system(config:dict,
         tune_config=tune.TuneConfig(
             search_alg=OptunaSearch(),
             scheduler=scheduler,
-            metric="val/x_accuracy", 
-            mode="max",
+            metric=config['metric'],
+            mode=config['mode'],
             num_samples=config['num_samples'],
         ),
         run_config=air.RunConfig(name=config['run_name'], 
@@ -96,5 +99,6 @@ def optimize_system(config:dict,
         ),
         param_space=config,
     )
+
     results = tuner.fit()
     print("Best hyperparameters found were: ", json.dumps(results.get_best_result().config, indent=4))
