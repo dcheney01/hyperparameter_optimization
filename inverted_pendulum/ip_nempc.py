@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from tqdm import tqdm 
+from tqdm.auto import tqdm 
 import json
 from PIL import Image
 import time
@@ -11,7 +11,6 @@ sys.path.append('/home/daniel/research/catkin_ws/src/')
 from nempc.src.nonlinear_empc.NonlinearEMPC import NonlinearEMPC
 from InvertedPendulum import InvertedPendulum
 from ip_LearnedModel import IP_LearnedModel
-from ip_config import test_ip_config
 
 """
 This file takes a learned model of the inverted pendulum and controls it with NEMPC
@@ -83,8 +82,8 @@ def ip_nempc(checkpoint_path, config, visualize=False, plot=False):
     crossover_method = 'knot_point'
 
     dt = config['dt']
-    useGPU = False
-    use_model_gpu = False
+    useGPU = True
+    use_model_gpu = True
 
     def cost_wrapper(x, u, xgoal, ugoal, prev_u=None, final_timestep=False):
         use_gpu = useGPU
@@ -142,7 +141,7 @@ def ip_nempc(checkpoint_path, config, visualize=False, plot=False):
         plt.gcf().canvas.draw()
 
     # Forward Simulate with Controller
-    for i in tqdm(range(0, realTimeHorizon)):            
+    for i in tqdm(range(0, realTimeHorizon), position=0, leave=True):            
         x_hist[:, i] = x.flatten()
         u_hist[:, i] = u.flatten()
 
@@ -241,4 +240,4 @@ if __name__=="__main__":
 
     print(json.dumps(config, indent=4))
 
-    ip_nempc(checkpoint_path=checkpoint_path, config=config, visualize=False, plot=True)
+    ip_nempc(checkpoint_path=checkpoint_path, config=config, visualize=True, plot=True)

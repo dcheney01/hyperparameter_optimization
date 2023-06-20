@@ -1,5 +1,5 @@
 """
-This script defines an inverted pendulum class.
+This script defines an inverted pendulum class with relevant dynamics. Inherits from BASE/Model.py
 
 State Vector x: [thetadot, theta].T
 
@@ -17,7 +17,7 @@ class InvertedPendulum(Model):
 
     def __init__(self, length=1.0, mass=0.2, damping=0.1, gravity=9.81, uMax=1.0):
         super().__init__()
-        self.name = "Inverted_Pendulum"
+        self.name = "inv_pendulum"
         self.numStates = 2
         self.numInputs = 1
 

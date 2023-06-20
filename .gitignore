@@ -6,3 +6,8 @@ inverted_pendulum/__pycache__/*
 inverted_pendulum/data/*
 inverted_pendulum/run_logs/*
 inverted_pendulum/test/*
+
+bellows_grub/__pycache__/*
+bellows_grub/data/*
+bellows_grub/run_logs/*
+bellows_grub/test/*

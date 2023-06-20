@@ -30,8 +30,8 @@ class IP_LearnedModel(InvertedPendulum):
             self.wrapAngle = np.array([False,False])
             self.wrapRange = (-np.pi,np.pi)
         """
-        self.num_outputs = 2
-        self.num_inputs = 3
+        # self.num_outputs = 2
+        # self.num_inputs = 3
         
         self.use_gpu = use_gpu
         self.config = config
@@ -129,12 +129,15 @@ if __name__=='__main__':
     u_analytical = np.zeros([1,1]) 
 
     dt = config['dt']
-    plt.ion()
-    horizon = 1200
+    sim_time = 10
+    horizon = int(sim_time/dt)
+
     x_learned_list = []
     x_analytical_list = []
     xdot_learned_list = []
     xdot_analytical_list = []
+
+    plt.ion()
 
     for i in range(0, horizon):
         x_learned = learned_system.forward_simulate_dt(x_learned, u_learned, dt)
