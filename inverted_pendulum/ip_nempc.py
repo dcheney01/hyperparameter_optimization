@@ -82,8 +82,8 @@ def ip_nempc(checkpoint_path, config, visualize=False, plot=False):
     crossover_method = 'knot_point'
 
     dt = config['dt']
-    useGPU = True
-    use_model_gpu = True
+    useGPU = False
+    use_model_gpu = False
 
     def cost_wrapper(x, u, xgoal, ugoal, prev_u=None, final_timestep=False):
         use_gpu = useGPU

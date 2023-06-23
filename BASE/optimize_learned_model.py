@@ -65,7 +65,7 @@ def optimize_system(config:dict,
     scheduler = ASHAScheduler(
                             max_t=config['max_epochs'],
                             grace_period=1,
-                            reduction_factor=4)
+                            reduction_factor=3)
     reporter = CLIReporter(
                         parameter_columns=["n_hlay", "hdim", "b_size", 'lr', 'act_fn', 'loss_fn', 'opt'],
                         metric_columns=["val/loss", 

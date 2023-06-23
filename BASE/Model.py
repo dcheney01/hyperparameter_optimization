@@ -36,11 +36,12 @@ class Model():
         u = deepcopy(u)
 
         # # enforce state constraints
-        too_high = np.where(x > self.xMax)
-        x[too_high] = self.xMax[too_high]
-        too_low = np.where(x < self.xMin)
-        x[too_low] = self.xMin[too_low]
+        # too_high = np.where(x > self.xMax)
+        # x[too_high] = self.xMax[too_high]
+        # too_low = np.where(x < self.xMin)
+        # x[too_low] = self.xMin[too_low]
 
+        x = np.clip(x, self.xMin, self.xMax)
         # # enforce input constraints
         u = np.clip(u,self.uMin,self.uMax)
 

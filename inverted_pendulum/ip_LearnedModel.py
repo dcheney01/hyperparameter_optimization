@@ -30,8 +30,6 @@ class IP_LearnedModel(InvertedPendulum):
             self.wrapAngle = np.array([False,False])
             self.wrapRange = (-np.pi,np.pi)
         """
-        # self.num_outputs = 2
-        # self.num_inputs = 3
         
         self.use_gpu = use_gpu
         self.config = config
