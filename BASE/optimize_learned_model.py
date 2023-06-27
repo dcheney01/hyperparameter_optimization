@@ -76,7 +76,8 @@ def optimize_system(config:dict,
     train_fn_with_parameters = tune.with_parameters(train, lighting_module_given=lighting_module_given)
     
     resources_per_trial = {"cpu": config['cpu_num'], "gpu": config['gpu_num']}
-
+    # tuner = tune.Tuner.restore("/home/daniel/research/catkin_ws/src/hyperparam_optimization/bellows_grub/run_logs/fnn_testrun", tune.with_resources(train_fn_with_parameters,
+    #                                                                                                                                                 resources_per_trial))
     tuner = tune.Tuner(
         tune.with_resources(
             train_fn_with_parameters,

@@ -2,6 +2,7 @@ from torch.utils.data import Dataset
 import torch
 import json, sys
 import numpy as np
+from scipy.stats import qmc
 
 """
 This file generates data to train a learned dynamics model of a given system. 
@@ -29,12 +30,11 @@ class DatasetBaseClass(Dataset):
         self.path = config['path'] + ('data/validation_' if validation else 'data/train_') + f'{self.system.name}.json'
         generate_new_data = config['generate_new_data']
 
-        self.learn_mode = config['learn_mode']
+        self.learn_mode = config.get('learn_mode', 'x')
         self.size = int(config['dataset_size'] * (0.2 if validation else 0.8)) # This ratio of validation to training data can be adjusted
         self.normalized = config['normalized_data']
         self.dt = config['dt']
-
-        
+        self.sampling_method = config.get('sampling_method', 'random') # default to random sampling if no method is provided
 
         assert type(self.system) is not None, "System type is None. Lightning Module Base class is not properly overrided"
         
@@ -56,10 +56,21 @@ class DatasetBaseClass(Dataset):
     def generate_data(self):
         data = []
         
+        if self.sampling_method == 'random':
+            state_array = (self.system.xMax - self.system.xMin)*np.random.rand(self.system.numStates,self.size) + self.system.xMin
+            input_array = (self.system.uMax - self.system.uMin)*np.random.rand(self.system.numInputs,self.size) + self.system.uMin
+        elif self.sampling_method == 'lhs':
+            state_sampler = qmc.LatinHypercube(d=self.system.numStates)
+            state_sample = state_sampler.random(n=self.size)
+            state_array = qmc.scale(state_sample, self.system.xMin.squeeze(), self.system.xMax.squeeze())
+
+            input_sampler = qmc.LatinHypercube(d=self.system.numInputs)
+            input_sample = input_sampler.random(n=self.size)
+            input_array = qmc.scale(input_sample, self.system.uMin, self.system.uMax)
+
         for j in range(self.size):
-            # Currently this loop generates random training data
-            state = (self.system.xMax - self.system.xMin)*np.random.rand(self.system.numStates,1) + self.system.xMin
-            input = (self.system.uMax - self.system.uMin)*np.random.rand(self.system.numInputs,1) + self.system.uMin
+            state = state_array[j].reshape(self.system.numStates,1)
+            input = input_array[j].reshape(self.system.numInputs,1)
 
             if self.learn_mode == 'xdot':
                 next_state = self.system.calc_state_derivs(state, input)

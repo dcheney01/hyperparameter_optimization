@@ -52,15 +52,15 @@ class GrubLightningModule(LightningModuleBaseClass):
 
 grub_config = {
     'project_name': 'hyperparam_opt_grub',
-    'run_name': 'fnn_try4_moredata',
+    'run_name': 'fnn_lhs_test',
 
     'nn_arch': 'simple_fnn', #'lstm', # 'transformer'
 
     # Parameters to Optimize
     'b_size': tune.choice([16, 32, 64, 128, 256]), #512
     'n_hlay': tune.choice(list(i for i in range(7))),
-    'hdim': tune.choice(list(2**i for i in range(3, 11))),
-    'lr': tune.loguniform(1e-4, 1e-2),
+    'hdim': tune.choice(list(2**i for i in range(3, 9))),
+    'lr': tune.loguniform(1e-5, 1e-2),
     'act_fn': tune.choice(['relu', 'tanh', 'sigmoid']),
     'loss_fn': tune.choice(['mse', 'mae']),#, 'cross_entropy']),
     'opt': tune.choice(['adam', 'sgd']),# 'ada', 'lbfgs', 'rmsprop']),
@@ -83,19 +83,20 @@ grub_config = {
     'n_outputs': 8, #[p, qd, q] at t+1
 
     # Other Configuration Parameters
-    'accuracy_tolerance': 0.05, # This translates to about 2.9 degrees
+    'accuracy_tolerance': 0.01, # in rad
     'num_workers': 6,
     'generate_new_data': False,
     'learn_mode': 'x',
-    'dataset_size': 120000,
+    'dataset_size': 20000,
     'normalized_data': True,
+    'sampling_method': 'lhs', # 'random'
     'dt': 0.01,
     'cpu_num': 7,
     'gpu_num': 1.0,
     
     # Optimization Tool Parameters
     'max_epochs': 500,
-    'num_samples': 100,
+    'num_samples': 10,
     'path': '/home/daniel/research/catkin_ws/src/hyperparam_optimization/bellows_grub/',
 }
 

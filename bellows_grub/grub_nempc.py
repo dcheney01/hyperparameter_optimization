@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from tqdm import tqdm 
+from tqdm.auto import tqdm 
 import json
 from PIL import Image
 import time
@@ -34,6 +34,7 @@ def grub_nempc(checkpoint_path, config, x0, u0, xgoal, ugoal, visualize=False, p
         # The learned model is used to predict the best inputs and the analytical model is used as ground truth to apply the predicted inputs
         system = BellowsGrub_LearnedModel(model_path=checkpoint_path, config=config, use_gpu=True)
         dt = config['dt']
+
         Q = torch.from_numpy(Q).float().cuda()
         Qf = torch.from_numpy(Qf).float().cuda()
         R = torch.from_numpy(R).float().cuda()
@@ -53,7 +54,7 @@ def grub_nempc(checkpoint_path, config, x0, u0, xgoal, ugoal, visualize=False, p
     numSims = 100
     numParents = 20
     numStrangers = 5
-    sim_seconds = 1.0
+    sim_seconds = 1.5
     sim_length = int(sim_seconds/dt)
 
     def CostFunc(x, u, xgoal, ugoal, prev_u=None, final_timestep=False):
@@ -105,7 +106,9 @@ def grub_nempc(checkpoint_path, config, x0, u0, xgoal, ugoal, visualize=False, p
         gifFrames = []
 
     # Forward Simulate with Controller
-    for i in tqdm(range(0, sim_length)): 
+    # for i in tqdm(range(0, sim_length)): 
+    for i in range(0, sim_length): 
+
         start = time.time()
         u = controller.solve_for_next_u(x, 
                                         xgoal, 
