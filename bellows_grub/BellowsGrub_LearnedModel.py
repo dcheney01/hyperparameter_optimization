@@ -46,12 +46,6 @@ class BellowsGrub_LearnedModel(BellowsGrub):
         self.use_gpu = use_gpu
         self.config = config
 
-        if config['normalized_data']:
-            self.xScale = self.xMax
-            self.uScale = self.uMax
-        else:
-            self.xScale = np.ones(self.xMax.shape)
-            self.uScale = np.ones(self.numInputs)
 
         if model_path is None:
             self.model = GrubLightningModule(self.config)
@@ -60,18 +54,31 @@ class BellowsGrub_LearnedModel(BellowsGrub):
 
         if self.use_gpu:
             self.model = self.model.cuda()
+            self.xMin = torch.from_numpy(self.xMin).cuda()
+            self.xMax = torch.from_numpy(self.xMax).cuda()
+            
+        if config['normalized_data']:
+            self.xScale = self.xMax
+            self.uScale = self.uMax
+        else:
+            # TODO fix for using gpu
+            self.xScale = np.ones(self.xMax.shape)
+            self.uScale = np.ones(self.numInputs)
 
         self.model.eval()
 
     def calc_state_derivs(self,x,u):
         xNorm = x/self.xScale
         uNorm = u/self.uScale
-        inputs = np.vstack([xNorm,uNorm]).T
-        inputs_tensor = torch.tensor(inputs).float()
-        if self.use_gpu==True:
-            inputs_tensor = inputs_tensor.cuda()
+        if self.use_gpu:
+            inputs = torch.vstack([xNorm, uNorm]).T.float().cuda()
+            xdot = self.model(inputs).T
 
-        xdot = self.model(inputs_tensor).cpu().detach().numpy().T
+        else:
+            inputs = np.vstack([xNorm,uNorm]).T
+            inputs_tensor = torch.tensor(inputs).float()
+
+            xdot = self.model(inputs_tensor).cpu().detach().numpy().T
         xdot *= self.xScale # will be unchanged for non-normalized data
 
         return xdot
@@ -87,24 +94,37 @@ class BellowsGrub_LearnedModel(BellowsGrub):
 
         If angle wrapping is desired, wrapAngle can be set to boolean numpy array with True values in the positions of angles to be wrapped. wrapRange controls the interval at which to wrap.
         """
-        xcols = np.shape(x)[1]
+        if self.use_gpu:
+            x = torch.clamp(x, self.xMin, self.xMax)
+            u = torch.clamp(u, self.uMin, self.uMax)
 
-        x = np.clip(x.cpu(), self.xMin, self.xMax)
-        u = np.clip(u.cpu(), self.uMin, self.uMax)
+            if self.config['learn_mode'] == 'x_dot':
+                x_dot = self.calc_state_derivs(x, u)
+                x = x + x_dot*dt
+            elif self.config['learn_mode'] == 'x':
+                x = self.calc_state_derivs(x, u)
+            else:
+                raise ValueError(f"Invalid learn_mode. Must be x or x_dot. Got {self.config['learn_mode']}")
 
-        if self.config['learn_mode'] == 'x_dot':
-            x_dot = self.calc_state_derivs(x, u)
-            x = x + x_dot*dt
-        elif self.config['learn_mode'] == 'x':
-            x = self.calc_state_derivs(x, u)
         else:
-            raise ValueError(f"Invalid learn_mode. Must be x or x_dot. Got {self.config['learn_mode']}")
+            xcols = np.shape(x)[1]
 
-        # make sure output is expected size
-        assert np.shape(x) == (self.numStates, xcols),\
-            "Something went wrong, output vector is not correct size:"\
-            "\nExpected size:({},n)\nActual size:{}"\
-            .format(self.numStates, np.shape(x))
+            x = np.clip(x.cpu(), self.xMin, self.xMax)
+            u = np.clip(u.cpu(), self.uMin, self.uMax)
+
+            if self.config['learn_mode'] == 'x_dot':
+                x_dot = self.calc_state_derivs(x, u)
+                x = x + x_dot*dt
+            elif self.config['learn_mode'] == 'x':
+                x = self.calc_state_derivs(x, u)
+            else:
+                raise ValueError(f"Invalid learn_mode. Must be x or x_dot. Got {self.config['learn_mode']}")
+
+            # make sure output is expected size
+            assert np.shape(x) == (self.numStates, xcols),\
+                "Something went wrong, output vector is not correct size:"\
+                "\nExpected size:({},n)\nActual size:{}"\
+                .format(self.numStates, np.shape(x))
 
         return x
     
