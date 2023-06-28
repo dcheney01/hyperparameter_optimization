@@ -17,16 +17,11 @@ from hyperparam_optimization.BASE.profile import profile
 """
 This file takes a learned model of the bellows grub and controls it with NEMPC
 """
-@profile(sort_by='cumulative', lines_to_print=30, strip_dirs=True)
+@profile(output_file='/home/daniel/research/catkin_ws/src/hyperparam_optimization/bellows_grub/grub_nempc.prof', sort_by='cumulative', lines_to_print=100, strip_dirs=True)
 def grub_nempc(checkpoint_path, config, x0, u0, xgoal, ugoal, visualize=False, plot=False, makeGif=False):
     Q = 1.0*np.diag([0,0,0,0,
-                    0.21, 0.21,
-                    50.0, 50.0])       
-    Qf = 1.0*np.diag([0,0,0,0,
-                    0.21, 0.21,
-                    50.0, 50.0]) 
-    R = 0.0*np.diag([1.0, 1.0, 1.0, 1.0])
-
+                0.21, 0.21,
+                50.0, 50.0])      
     # NEMPC Controller Parameters
     if checkpoint_path is None: # Use the analytical model
         system = BellowsGrub()
@@ -34,13 +29,10 @@ def grub_nempc(checkpoint_path, config, x0, u0, xgoal, ugoal, visualize=False, p
         use_gpu = False 
     else: # use the learned model
         # The learned model is used to predict the best inputs and the analytical model is used as ground truth to apply the predicted inputs
-        system = BellowsGrub_LearnedModel(model_path=checkpoint_path, config=config, use_gpu=True)
-        dt = config['dt']
-
-        Q = torch.from_numpy(Q).float().cuda()
-        Qf = torch.from_numpy(Qf).float().cuda()
-        R = torch.from_numpy(R).float().cuda()
         use_gpu = True
+        system = BellowsGrub_LearnedModel(model_path=checkpoint_path, config=config, use_gpu=use_gpu)
+        dt = config['dt']
+        Q = torch.from_numpy(Q).float().cuda()
 
     forward = system.forward_simulate_dt 
     numStates = system.numStates
@@ -61,21 +53,11 @@ def grub_nempc(checkpoint_path, config, x0, u0, xgoal, ugoal, visualize=False, p
 
     def CostFunc(x, u, xgoal, ugoal, prev_u=None, final_timestep=False):
         if use_gpu:
-            if final_timestep:
-                Qx = torch.mm(Qf,(x-xgoal)**2.0)
-                cost = torch.sum(Qx,axis=0)
-            else:
-                Qx = torch.mm(Q,(x-xgoal)**2.0)
-                # Ru = torch.mm(R,(u-ugoal))
-                cost = torch.sum(Qx,axis=0) # + torch.sum(Ru,axis=0)
+            Qx = torch.mm(Q,(x-xgoal)**2.0)
+            cost = torch.sum(Qx,axis=0)
         else:
-            if final_timestep:
-                Qx = Qf.dot(x-xgoal)**2.0
-                cost = np.sum(Qx, axis=0)
-            else:
-                Qx = Q.dot(x-xgoal)**2.0
-                Ru = R.dot(u-ugoal)**2.0
-                cost = np.sum(Qx, axis=0) + np.sum(Ru, axis=0)
+            Qx = Q.dot(x-xgoal)**2.0
+            cost = np.sum(Qx, axis=0)
         return cost
     
     controller = NonlinearEMPC(
@@ -106,9 +88,7 @@ def grub_nempc(checkpoint_path, config, x0, u0, xgoal, ugoal, visualize=False, p
     if makeGif:
         gifFrames = []
 
-    # Forward Simulate with Controller
-    # for i in tqdm(range(0, sim_length)): 
-    
+    # Forward Simulate with Controller 
     for i in range(0, sim_length): 
 
         start = time.time()
@@ -137,8 +117,6 @@ def grub_nempc(checkpoint_path, config, x0, u0, xgoal, ugoal, visualize=False, p
     iae_metric = np.sum(error_hist)
     avg_resting_pos = np.mean(x_hist[6:, -10:], 1)
     control_successful = np.all(np.abs(avg_resting_pos - xgoal[6:].T) < 0.1)
-    print(f'Average solve time (not including first 3): {np.mean(solve_time_hist)}')
-
 
     if plot:
         print(f'x final is u={x[6]} and v={x[7]}')
@@ -227,7 +205,7 @@ if __name__=="__main__":
 
     # print(f'q_goal is u={q_goal[0]} and v={q_goal[1]}')
     # checkpoint_path = None
-    x, iae_metric, control_successful = grub_nempc(checkpoint_path, config, x0, u0, xgoal, ugoal, visualize=False, plot=False)
+    x, iae_metric, control_successful = grub_nempc(checkpoint_path, config, x0, u0, xgoal, ugoal, visualize=False, plot=True)
     print(f'q_goal is u={q_goal[0]} and v={q_goal[1]} \
             \n  q_final is u={x[6]} and v={x[7]}  \
             \nControl {"was Successful" if control_successful else "Failed"} with IAE={iae_metric}\n')

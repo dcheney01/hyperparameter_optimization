@@ -61,9 +61,12 @@ class BellowsGrub_LearnedModel(BellowsGrub):
             self.xScale = self.xMax
             self.uScale = self.uMax
         else:
-            # TODO fix for using gpu
-            self.xScale = np.ones(self.xMax.shape)
-            self.uScale = np.ones(self.numInputs)
+            if use_gpu:
+                self.xScale = torch.ones(self.xMax.shape)
+                self.uScale = torch.ones(self.numInputs)
+            else:
+                self.xScale = np.ones(self.xMax.shape)
+                self.uScale = np.ones(self.numInputs)  
 
         self.model.eval()
 
@@ -73,14 +76,11 @@ class BellowsGrub_LearnedModel(BellowsGrub):
         if self.use_gpu:
             inputs = torch.vstack([xNorm, uNorm]).T.float().cuda()
             xdot = self.model(inputs).T
-
         else:
             inputs = np.vstack([xNorm,uNorm]).T
             inputs_tensor = torch.tensor(inputs).float()
-
             xdot = self.model(inputs_tensor).cpu().detach().numpy().T
         xdot *= self.xScale # will be unchanged for non-normalized data
-
         return xdot
     
     def forward_simulate_dt(self, x, u, dt):
@@ -150,7 +150,6 @@ if __name__=='__main__':
                   [200],
                   [200]])
     x_learned = np.vstack([p_learned,qd_learned,q_learned])
-
 
     analytical_system = BellowsGrub()
     q_analytical = np.ones((2,1))*.01
