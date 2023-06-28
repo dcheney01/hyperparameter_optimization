@@ -1,0 +1,133 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    cli_version: 0.14.0
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    python_version: 3.8.10
+    start_time: 1687573887.054354
+    t:
+      1:
+      - 30
+      - 55
+      2:
+      - 30
+      - 55
+      3:
+      - 2
+      - 13
+      - 14
+      - 16
+      - 19
+      - 23
+      4: 3.8.10
+      5: 0.14.0
+      8:
+      - 8
+accuracy_tolerance:
+  desc: null
+  value: 0.01
+act_fn:
+  desc: null
+  value: tanh
+b_size:
+  desc: null
+  value: 256
+cpu_num:
+  desc: null
+  value: 7
+dataset_size:
+  desc: null
+  value: 120000
+date:
+  desc: null
+  value: 2023-06-23_21-24-11
+dt:
+  desc: null
+  value: 0.01
+experiment_id:
+  desc: null
+  value: ba9913bed0b94330bdfb3986a27b4c47
+generate_new_data:
+  desc: null
+  value: false
+gpu_num:
+  desc: null
+  value: 1.0
+hdim:
+  desc: null
+  value: 128
+hostname:
+  desc: null
+  value: CTB455-Salmon
+learn_mode:
+  desc: null
+  value: x
+logmetric1_name:
+  desc: null
+  value: u_accuracy
+logmetric2_name:
+  desc: null
+  value: v_accuracy
+loss_fn:
+  desc: null
+  value: mae
+lr:
+  desc: null
+  value: 0.002962942736441659
+max_epochs:
+  desc: null
+  value: 750
+metric:
+  desc: null
+  value: val/loss
+mode:
+  desc: null
+  value: min
+n_hlay:
+  desc: null
+  value: 0
+n_inputs:
+  desc: null
+  value: 12
+n_outputs:
+  desc: null
+  value: 8
+nn_arch:
+  desc: null
+  value: simple_fnn
+node_ip:
+  desc: null
+  value: 10.32.114.243
+normalized_data:
+  desc: null
+  value: true
+num_samples:
+  desc: null
+  value: 200
+num_workers:
+  desc: null
+  value: 6
+opt:
+  desc: null
+  value: adam
+path:
+  desc: null
+  value: /home/daniel/research/catkin_ws/src/hyperparam_optimization/bellows_grub/
+pid:
+  desc: null
+  value: 252719
+project_name:
+  desc: null
+  value: hyperparam_opt_grub
+run_name:
+  desc: null
+  value: fnn_testrun
+trial_id:
+  desc: null
+  value: e8d1e215
+trial_log_path:
+  desc: null
+  value: /home/daniel/research/catkin_ws/src/hyperparam_optimization/bellows_grub/run_logs/fnn_testrun/train_e8d1e215_4_accuracy_tolerance=0.0100,act_fn=tanh,b_size=256,cpu_num=7,dataset_size=120000,dt=0.0100,generate_new_data=False,_2023-06-23_20-31-24
