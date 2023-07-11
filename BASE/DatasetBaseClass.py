@@ -44,6 +44,7 @@ class DatasetBaseClass(Dataset):
                     self.data_points = [x for x in json.load(f)]
                     if len(self.data_points) != self.size:
                         # Generate new data if the found data is not the same size as requested dataset size
+                        print(f"Dataset size is incorrect. Expected {self.size} and got {len(self.data_points)}. Generating new data...")
                         generate_new_data = True
             except:
                 print("No data found, will generate new data")
@@ -57,8 +58,8 @@ class DatasetBaseClass(Dataset):
         data = []
         
         if self.sampling_method == 'random':
-            state_array = (self.system.xMax - self.system.xMin)*np.random.rand(self.system.numStates,self.size) + self.system.xMin
-            input_array = (self.system.uMax - self.system.uMin)*np.random.rand(self.system.numInputs,self.size) + self.system.uMin
+            state_array = ((self.system.xMax - self.system.xMin)*np.random.rand(self.system.numStates,self.size) + self.system.xMin).T
+            input_array = ((self.system.uMax - self.system.uMin)*np.random.rand(self.system.numInputs,self.size) + self.system.uMin).T
         elif self.sampling_method == 'lhs':
             state_sampler = qmc.LatinHypercube(d=self.system.numStates)
             state_sample = state_sampler.random(n=self.size)

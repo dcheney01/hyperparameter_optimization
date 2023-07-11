@@ -1,0 +1,136 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    cli_version: 0.14.0
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    python_version: 3.8.10
+    start_time: 1688705489.071363
+    t:
+      1:
+      - 30
+      - 55
+      2:
+      - 30
+      - 55
+      3:
+      - 2
+      - 13
+      - 14
+      - 16
+      - 19
+      - 23
+      4: 3.8.10
+      5: 0.14.0
+      8:
+      - 8
+accuracy_tolerance:
+  desc: null
+  value: 0.01
+act_fn:
+  desc: null
+  value: sigmoid
+b_size:
+  desc: null
+  value: 16
+cpu_num:
+  desc: null
+  value: 7
+dataset_size:
+  desc: null
+  value: 100000
+date:
+  desc: null
+  value: 2023-07-07_09-22-04
+dt:
+  desc: null
+  value: 0.01
+experiment_id:
+  desc: null
+  value: 26d0ccba3e494407aa55eb287c411238
+generate_new_data:
+  desc: null
+  value: false
+gpu_num:
+  desc: null
+  value: 1.0
+hdim:
+  desc: null
+  value: 64
+hostname:
+  desc: null
+  value: CTB455-Salmon
+learn_mode:
+  desc: null
+  value: x
+logmetric1_name:
+  desc: null
+  value: u_accuracy
+logmetric2_name:
+  desc: null
+  value: v_accuracy
+loss_fn:
+  desc: null
+  value: mse
+lr:
+  desc: null
+  value: 0.007556751109428575
+max_epochs:
+  desc: null
+  value: 750
+metric:
+  desc: null
+  value: val/loss
+mode:
+  desc: null
+  value: min
+n_hlay:
+  desc: null
+  value: 0
+n_inputs:
+  desc: null
+  value: 12
+n_outputs:
+  desc: null
+  value: 8
+nn_arch:
+  desc: null
+  value: simple_fnn
+node_ip:
+  desc: null
+  value: 10.32.114.243
+normalized_data:
+  desc: null
+  value: true
+num_samples:
+  desc: null
+  value: 150
+num_workers:
+  desc: null
+  value: 6
+opt:
+  desc: null
+  value: adam
+path:
+  desc: null
+  value: /home/daniel/research/catkin_ws/src/hyperparam_optimization/bellows_grub/
+pid:
+  desc: null
+  value: 5848
+project_name:
+  desc: null
+  value: hyperparam_opt_grub
+run_name:
+  desc: null
+  value: fnn_lhs_final
+sampling_method:
+  desc: null
+  value: lhs
+trial_id:
+  desc: null
+  value: 595eaec2
+trial_log_path:
+  desc: null
+  value: /home/daniel/research/catkin_ws/src/hyperparam_optimization/bellows_grub/run_logs/fnn_lhs_final/train_595eaec2_135_accuracy_tolerance=0.0100,act_fn=sigmoid,b_size=16,cpu_num=7,dataset_size=100000,dt=0.0100,generate_new_data=Fa_2023-07-06_22-51-26
